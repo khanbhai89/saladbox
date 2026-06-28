@@ -29,3 +29,6 @@ data/
 .claude/
 *.swp
 
+# Dependencies & Local Projects
+electron/node_modules/
+get-shit-done/
