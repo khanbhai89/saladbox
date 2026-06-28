@@ -62,11 +62,20 @@ def main():
     print(f"\nSuccessfully added entry to {CHANGELOG_FILE}:")
     print(f"- {entry}")
     
-    # Ask to stage the changelog
-    stage = input("\nStage CHANGELOG.md? (y/N): ")
-    if stage.lower() == 'y':
-        run_cmd(f"git add {CHANGELOG_FILE}")
-        print("CHANGELOG.md staged.")
+    # Automatically stage, commit, and push
+    print("\n--- Automatically Committing & Pushing Changes ---")
+    run_cmd(f"git add .")
+    commit_res = subprocess.run(f'git commit -m "{entry}"', shell=True, capture_output=True, text=True)
+    print(commit_res.stdout.strip())
+    if commit_res.returncode == 0:
+        print("Pushing to GitHub...")
+        push_res = subprocess.run("git push origin main", shell=True, capture_output=True, text=True)
+        if push_res.returncode == 0:
+            print("Successfully pushed to GitHub!")
+        else:
+            print(f"Failed to push to GitHub:\n{push_res.stderr.strip()}")
+    else:
+        print(f"Failed to commit:\n{commit_res.stderr.strip()}")
 
 if __name__ == "__main__":
     main()
