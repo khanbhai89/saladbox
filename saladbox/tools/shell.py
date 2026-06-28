@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from typing import Union
 
 from saladbox.tools.base import BaseTool
 
@@ -46,7 +45,7 @@ class ShellTool(BaseTool):
 
     async def execute(
         self,
-        command: Union[str, list[str]],
+        command: str | list[str],
         timeout: int = 30,
         working_dir: str = ".",
     ) -> str:
@@ -76,7 +75,7 @@ class ShellTool(BaseTool):
             stdout, stderr = await asyncio.wait_for(
                 proc.communicate(), timeout=timeout
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             proc.kill()
             await proc.communicate()
             return f"Command timed out after {timeout}s"

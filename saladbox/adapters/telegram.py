@@ -6,12 +6,17 @@ import asyncio
 import logging
 import os
 import tempfile
+from typing import TYPE_CHECKING
 
 from saladbox.adapters.base import BaseAdapter
-from saladbox.config import AppConfig
-from saladbox.core.chat_store import ChatStore
-from saladbox.core.engine import AgentEngine
 from saladbox.core.types import ConversationContext
+
+if TYPE_CHECKING:
+    from telegram import Update
+
+    from saladbox.config import AppConfig
+    from saladbox.core.chat_store import ChatStore
+    from saladbox.core.engine import AgentEngine
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +40,6 @@ class TelegramAdapter(BaseAdapter):
 
     def _setup(self):
         """Lazy import and setup to avoid import errors when Telegram is disabled."""
-        from telegram import Update
         from telegram.ext import (
             ApplicationBuilder,
             CommandHandler,

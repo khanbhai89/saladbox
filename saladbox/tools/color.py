@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Optional, Tuple
 
 from saladbox.tools.base import BaseTool
 
@@ -96,7 +95,7 @@ class ColorTool(BaseTool):
     async def execute(
         self,
         action: str,
-        color: Optional[str] = None,
+        color: str | None = None,
         format: str = "all",
         count: int = 5,
     ) -> str:
@@ -164,9 +163,9 @@ class ColorTool(BaseTool):
                 return f"Unknown action: {action}"
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
-    def _parse_color(self, color: str) -> Optional[Tuple[int, int, int]]:
+    def _parse_color(self, color: str) -> tuple[int, int, int] | None:
         color = color.strip().lower()
 
         if color.startswith("#"):
@@ -192,7 +191,7 @@ class ColorTool(BaseTool):
 
         return None
 
-    def _format_color(self, rgb: Tuple[int, int, int], fmt: str) -> str:
+    def _format_color(self, rgb: tuple[int, int, int], fmt: str) -> str:
         r, g, b = rgb
 
         if fmt == "hex":
@@ -216,7 +215,7 @@ class ColorTool(BaseTool):
                 + f"HSV: ({hsv[0]:.0f}, {hsv[1]:.0f}%, {hsv[2]:.0f}%)"
             )
 
-    def _rgb_to_hsl(self, rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
+    def _rgb_to_hsl(self, rgb: tuple[int, int, int]) -> tuple[float, float, float]:
         r, g, b = [x / 255.0 for x in rgb]
         max_c, min_c = max(r, g, b), min(r, g, b)
         l = (max_c + min_c) / 2
@@ -236,7 +235,7 @@ class ColorTool(BaseTool):
 
         return (h * 60, s * 100, l * 100)
 
-    def _rgb_to_hsv(self, rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
+    def _rgb_to_hsv(self, rgb: tuple[int, int, int]) -> tuple[float, float, float]:
         r, g, b = [x / 255.0 for x in rgb]
         max_c, min_c = max(r, g, b), min(r, g, b)
         v = max_c
@@ -256,7 +255,7 @@ class ColorTool(BaseTool):
 
         return (h * 60, s * 100, v * 100)
 
-    def _hsl_to_rgb(self, h: float, s: float, l: float) -> Tuple[int, int, int]:
+    def _hsl_to_rgb(self, h: float, s: float, l: float) -> tuple[int, int, int]:
         s, l = s / 100, l / 100
         c = (1 - abs(2 * l - 1)) * s
         x = c * (1 - abs((h / 60) % 2 - 1))
@@ -277,11 +276,11 @@ class ColorTool(BaseTool):
 
         return (int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
 
-    def _complementary(self, rgb: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def _complementary(self, rgb: tuple[int, int, int]) -> tuple[int, int, int]:
         h, s, l = self._rgb_to_hsl(rgb)
         return self._hsl_to_rgb((h + 180) % 360, s, l)
 
-    def _triadic(self, rgb: Tuple[int, int, int]) -> list:
+    def _triadic(self, rgb: tuple[int, int, int]) -> list:
         h, s, l = self._rgb_to_hsl(rgb)
         return [
             rgb,
@@ -289,7 +288,7 @@ class ColorTool(BaseTool):
             self._hsl_to_rgb((h + 240) % 360, s, l),
         ]
 
-    def _analogous(self, rgb: Tuple[int, int, int], count: int) -> list:
+    def _analogous(self, rgb: tuple[int, int, int], count: int) -> list:
         h, s, l = self._rgb_to_hsl(rgb)
         colors = [rgb]
         step = 30
@@ -299,7 +298,7 @@ class ColorTool(BaseTool):
         return colors
 
     def _generate_palette(
-        self, count: int, base_rgb: Optional[Tuple[int, int, int]]
+        self, count: int, base_rgb: tuple[int, int, int] | None
     ) -> list:
         import random
 

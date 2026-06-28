@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import uuid as uuid_lib
 import secrets
 import string
-from typing import Optional
+import uuid as uuid_lib
 
 from saladbox.tools.base import BaseTool
 
@@ -67,7 +66,7 @@ class EncodingTool(BaseTool):
     async def execute(
         self,
         action: str,
-        data: Optional[str] = None,
+        data: str | None = None,
         algorithm: str = "sha256",
         length: int = 16,
     ) -> str:
@@ -150,4 +149,4 @@ class EncodingTool(BaseTool):
                 return f"Unknown action: {action}"
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"

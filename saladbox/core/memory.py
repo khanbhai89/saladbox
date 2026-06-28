@@ -10,7 +10,7 @@ Updated with:
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from saladbox.core.types import Message, Role
 
@@ -77,7 +77,7 @@ class ConversationMemory:
         # Trim by message count
         if len(msgs) > self._max_messages:
             trimmed = len(msgs) - self._max_messages + 1
-            self._conversations[conversation_id] = [msgs[0]] + msgs[-(self._max_messages - 1) :]
+            self._conversations[conversation_id] = [msgs[0], *msgs[-(self._max_messages - 1):]]
             stats.trimmed_messages += trimmed
             logger.debug(
                 f"Trimmed {trimmed} messages from {conversation_id} "

@@ -9,17 +9,19 @@ import mimetypes
 import os
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import yaml
 from aiohttp import web
 
 from saladbox.adapters.base import BaseAdapter
-from saladbox.config import AppConfig
-from saladbox.core.chat_store import ChatStore
-from saladbox.core.engine import AgentEngine
 from saladbox.core.types import ConversationContext
 from saladbox.core.whisper_service import WhisperService
+
+if TYPE_CHECKING:
+    from saladbox.config import AppConfig
+    from saladbox.core.chat_store import ChatStore
+    from saladbox.core.engine import AgentEngine
 
 # Screenshot directory (must match screen_capture tool and engine)
 _SCREENSHOT_DIR = os.path.join(tempfile.gettempdir(), "saladbox_screenshots")
@@ -259,10 +261,7 @@ class HTTPAdapter(BaseAdapter):
             if not model_name:
                 return web.json_response({"error": "model is required"}, status=400)
 
-            if provider == "openrouter":
-                config = self._config.openrouter
-            else:
-                config = self._config.ollama
+            config = self._config.openrouter if provider == "openrouter" else self._config.ollama
 
             if model_type == "default":
                 config.default_model = model_name
@@ -769,12 +768,11 @@ class HTTPAdapter(BaseAdapter):
         # Check Draw Things
         try:
             import aiohttp
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"{self._config.image_gen.drawthings_url}/sdapi/v1/sd-models",
-                    timeout=aiohttp.ClientTimeout(total=2),
-                ) as resp:
-                    status["drawthings_available"] = resp.status == 200
+            async with aiohttp.ClientSession() as session, session.get(
+                f"{self._config.image_gen.drawthings_url}/sdapi/v1/sd-models",
+                timeout=aiohttp.ClientTimeout(total=2),
+            ) as resp:
+                status["drawthings_available"] = resp.status == 200
         except Exception:
             pass
 
@@ -989,9 +987,7 @@ class HTTPAdapter(BaseAdapter):
 
                 origin = request.headers.get("Origin", "")
                 is_allowed = False
-                if not origin:
-                    is_allowed = True
-                elif origin.startswith("file://"):
+                if not origin or origin.startswith("file://"):
                     is_allowed = True
                 else:
                     from urllib.parse import urlparse
@@ -1007,7 +1003,7 @@ class HTTPAdapter(BaseAdapter):
                     response.headers["Access-Control-Allow-Origin"] = origin if origin else "*"
                     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
                     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-                
+
                 return response
 
             return middleware_handler
@@ -1023,7 +1019,7 @@ class HTTPAdapter(BaseAdapter):
         print(f"\n  saladbox HTTP API running at http://{self.host}:{self.port}")
         print(f"  WebSocket: ws://{self.host}:{self.port}/ws")
         print(
-            f"  Endpoints: POST /chat, GET /ws, GET /models, GET /tools, GET /config\n"
+            "  Endpoints: POST /chat, GET /ws, GET /models, GET /tools, GET /config\n"
         )
 
     async def stop(self) -> None:

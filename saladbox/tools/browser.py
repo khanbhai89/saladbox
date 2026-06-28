@@ -369,8 +369,8 @@ class BrowserTool(BaseTool):
         await self._ensure_browser()
 
         interactive_actions = {
-            "extract_form", "fill_form", "click", "type", "fill", 
-            "press_key", "get_text", "get_html", "select", "get_state", 
+            "extract_form", "fill_form", "click", "type", "fill",
+            "press_key", "get_text", "get_html", "select", "get_state",
             "evaluate_js", "wait", "get_links"
         }
         if action in interactive_actions and self._page and self._page.url == "about:blank":
@@ -551,7 +551,7 @@ class BrowserTool(BaseTool):
                     url, timeout=timeout, wait_until="domcontentloaded"
                 )
             except Exception as e:
-                return f"Failed to navigate to {url}: {str(e)}"
+                return f"Failed to navigate to {url}: {e!s}"
         status = response.status if response else "unknown"
 
         # Auto-dismiss cookies immediately
@@ -816,17 +816,17 @@ class BrowserTool(BaseTool):
                     () => {
                         const title = document.title || '';
                         const meta_desc = document.querySelector('meta[name="description"]')?.content || '';
-                        
+
                         // Try to find products/items
                         const products = [];
-                        
+
                         // E-commerce patterns
                         document.querySelectorAll('[data-product], .product, .item, article, .card, [class*="product"], [class*="item"]').forEach(el => {
                             const name = el.querySelector('h1, h2, h3, h4, .title, .name, [class*="title"], [class*="name"]');
                             const price = el.querySelector('[class*="price"], .price');
                             const rating = el.querySelector('[class*="rating"], [class*="star"], .rating');
                             const link = el.querySelector('a[href]');
-                            
+
                             if (name) {
                                 products.push({
                                     name: name.innerText.trim().substring(0, 100),
@@ -836,11 +836,11 @@ class BrowserTool(BaseTool):
                                 });
                             }
                         });
-                        
+
                         // Get main text content
                         const main = document.querySelector('main, article, .content, #content, .main');
                         const text = main ? main.innerText.substring(0, 500) : document.body.innerText.substring(0, 500);
-                        
+
                         return {
                             title,
                             meta_desc: meta_desc.substring(0, 200),

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import aiohttp
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -69,12 +68,12 @@ class LocationTool(BaseTool):
     async def execute(
         self,
         action: str,
-        address: Optional[str] = None,
-        lat: Optional[float] = None,
-        lon: Optional[float] = None,
-        query: Optional[str] = None,
-        dest_lat: Optional[float] = None,
-        dest_lon: Optional[float] = None,
+        address: str | None = None,
+        lat: float | None = None,
+        lon: float | None = None,
+        query: str | None = None,
+        dest_lat: float | None = None,
+        dest_lon: float | None = None,
         provider: str = "google",
     ) -> str:
         if action == "geocode":
@@ -113,16 +112,15 @@ class LocationTool(BaseTool):
         }
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    params=params,
-                    timeout=aiohttp.ClientTimeout(total=15),
-                    headers={"User-Agent": "Saladbox/1.0"},
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Error: API returned status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url,
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=15),
+                headers={"User-Agent": "Saladbox/1.0"},
+            ) as resp:
+                if resp.status != 200:
+                    return f"Error: API returned status {resp.status}"
+                data = await resp.json()
 
             if not data:
                 return f"No results found for: {address}"
@@ -145,9 +143,9 @@ class LocationTool(BaseTool):
             return "\n".join(result)
 
         except aiohttp.ClientError as e:
-            return f"Network error: {str(e)}"
+            return f"Network error: {e!s}"
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     async def _reverse_geocode(self, lat: float, lon: float) -> str:
         url = "https://nominatim.openstreetmap.org/reverse"
@@ -159,16 +157,15 @@ class LocationTool(BaseTool):
         }
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    params=params,
-                    timeout=aiohttp.ClientTimeout(total=15),
-                    headers={"User-Agent": "Saladbox/1.0"},
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Error: API returned status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url,
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=15),
+                headers={"User-Agent": "Saladbox/1.0"},
+            ) as resp:
+                if resp.status != 200:
+                    return f"Error: API returned status {resp.status}"
+                data = await resp.json()
 
             if "error" in data:
                 return f"Error: {data['error']}"
@@ -195,9 +192,9 @@ class LocationTool(BaseTool):
             return "\n".join(result)
 
         except aiohttp.ClientError as e:
-            return f"Network error: {str(e)}"
+            return f"Network error: {e!s}"
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     async def _search_locations(self, query: str) -> str:
         url = "https://nominatim.openstreetmap.org/search"
@@ -208,16 +205,15 @@ class LocationTool(BaseTool):
         }
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    params=params,
-                    timeout=aiohttp.ClientTimeout(total=15),
-                    headers={"User-Agent": "Saladbox/1.0"},
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Error: API returned status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url,
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=15),
+                headers={"User-Agent": "Saladbox/1.0"},
+            ) as resp:
+                if resp.status != 200:
+                    return f"Error: API returned status {resp.status}"
+                data = await resp.json()
 
             if not data:
                 return f"No locations found for: {query}"
@@ -232,13 +228,13 @@ class LocationTool(BaseTool):
             return "\n".join(result)
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     def _generate_map_link(
         self,
-        lat: Optional[float],
-        lon: Optional[float],
-        address: Optional[str],
+        lat: float | None,
+        lon: float | None,
+        address: str | None,
         provider: str,
     ) -> str:
         if lat is not None and lon is not None:

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -41,7 +40,7 @@ class ClipboardTool(BaseTool):
             "required": ["action"],
         }
 
-    async def execute(self, action: str, text: Optional[str] = None) -> str:
+    async def execute(self, action: str, text: str | None = None) -> str:
         if action == "read":
             return await self._read()
         elif action == "write":
@@ -96,7 +95,7 @@ class ClipboardTool(BaseTool):
         except subprocess.TimeoutExpired:
             return "Error: Clipboard operation timed out"
         except Exception as e:
-            return f"Error reading clipboard: {str(e)}"
+            return f"Error reading clipboard: {e!s}"
 
     async def _write(self, text: str) -> str:
         try:
@@ -135,7 +134,7 @@ class ClipboardTool(BaseTool):
         except subprocess.TimeoutExpired:
             return "Error: Clipboard operation timed out"
         except Exception as e:
-            return f"Error writing to clipboard: {str(e)}"
+            return f"Error writing to clipboard: {e!s}"
 
     async def _clear(self) -> str:
         return await self._write("")

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import aiohttp
 import json
-from typing import Optional, Dict, Any
+from typing import Any
+
+import aiohttp
 
 from saladbox.tools.base import BaseTool
 
@@ -62,9 +63,9 @@ class HttpClientTool(BaseTool):
         self,
         method: str,
         url: str,
-        headers: Optional[Dict[str, str]] = None,
-        body: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
+        body: dict[str, Any] | None = None,
+        params: dict[str, str] | None = None,
         timeout: int = 30,
     ) -> str:
         if not url.startswith(("http://", "https://")):
@@ -98,8 +99,8 @@ class HttpClientTool(BaseTool):
 
                     result = [
                         f"**Status:** {resp.status} {resp.reason}",
-                        f"**URL:** {str(resp.url)}",
-                        f"\n**Headers:**",
+                        f"**URL:** {resp.url!s}",
+                        "\n**Headers:**",
                     ]
 
                     for key, value in list(response_headers.items())[:10]:
@@ -110,6 +111,6 @@ class HttpClientTool(BaseTool):
                     return "\n".join(result)
 
         except aiohttp.ClientError as e:
-            return f"HTTP error: {str(e)}"
+            return f"HTTP error: {e!s}"
         except Exception as e:
-            return f"Unexpected error: {str(e)}"
+            return f"Unexpected error: {e!s}"

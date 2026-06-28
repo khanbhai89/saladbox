@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import aiohttp
-import json
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -84,10 +82,10 @@ class FinanceTool(BaseTool):
     async def execute(
         self,
         action: str,
-        symbol: Optional[str] = None,
+        symbol: str | None = None,
         currency: str = "usd",
-        from_currency: Optional[str] = None,
-        to_currency: Optional[str] = None,
+        from_currency: str | None = None,
+        to_currency: str | None = None,
     ) -> str:
         try:
             if action == "crypto":
@@ -112,14 +110,14 @@ class FinanceTool(BaseTool):
                 return f"Unknown action: {action}"
 
         except aiohttp.ClientError as e:
-            return f"Network error: {str(e)}"
+            return f"Network error: {e!s}"
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     async def _get_crypto_price(self, symbol: str, currency: str) -> str:
         coin_id = self.COINGECKO_IDS.get(symbol, symbol)
 
-        url = f"https://api.coingecko.com/api/v3/simple/price"
+        url = "https://api.coingecko.com/api/v3/simple/price"
         params = {
             "ids": coin_id,
             "vs_currencies": currency,
@@ -128,15 +126,14 @@ class FinanceTool(BaseTool):
             "include_24hr_vol": "true",
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, params=params, timeout=aiohttp.ClientTimeout(total=15)
-            ) as resp:
-                if resp.status == 429:
-                    return "Error: Rate limited. Please try again in a minute."
-                if resp.status != 200:
-                    return f"Error: API returned status {resp.status}"
-                data = await resp.json()
+        async with aiohttp.ClientSession() as session, session.get(
+            url, params=params, timeout=aiohttp.ClientTimeout(total=15)
+        ) as resp:
+            if resp.status == 429:
+                return "Error: Rate limited. Please try again in a minute."
+            if resp.status != 200:
+                return f"Error: API returned status {resp.status}"
+            data = await resp.json()
 
         if coin_id not in data:
             return f"Cryptocurrency '{symbol}' not found. Try using the full name (e.g., 'bitcoin')."
@@ -167,15 +164,14 @@ class FinanceTool(BaseTool):
             "sparkline": "false",
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, params=params, timeout=aiohttp.ClientTimeout(total=15)
-            ) as resp:
-                if resp.status == 429:
-                    return "Error: Rate limited. Please try again in a minute."
-                if resp.status != 200:
-                    return f"Error: API returned status {resp.status}"
-                data = await resp.json()
+        async with aiohttp.ClientSession() as session, session.get(
+            url, params=params, timeout=aiohttp.ClientTimeout(total=15)
+        ) as resp:
+            if resp.status == 429:
+                return "Error: Rate limited. Please try again in a minute."
+            if resp.status != 200:
+                return f"Error: API returned status {resp.status}"
+            data = await resp.json()
 
         result = [f"**Top 15 Cryptocurrencies by Market Cap ({currency.upper()})**\n"]
 
@@ -196,15 +192,14 @@ class FinanceTool(BaseTool):
     async def _get_trending(self) -> str:
         url = "https://api.coingecko.com/api/v3/search/trending"
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=15)
-            ) as resp:
-                if resp.status == 429:
-                    return "Error: Rate limited. Please try again in a minute."
-                if resp.status != 200:
-                    return f"Error: API returned status {resp.status}"
-                data = await resp.json()
+        async with aiohttp.ClientSession() as session, session.get(
+            url, timeout=aiohttp.ClientTimeout(total=15)
+        ) as resp:
+            if resp.status == 429:
+                return "Error: Rate limited. Please try again in a minute."
+            if resp.status != 200:
+                return f"Error: API returned status {resp.status}"
+            data = await resp.json()
 
         coins = data.get("coins", [])
 
@@ -220,15 +215,14 @@ class FinanceTool(BaseTool):
         return "\n".join(result)
 
     async def _get_exchange_rate(self, from_curr: str, to_curr: str) -> str:
-        url = f"https://api.coingecko.com/api/v3/exchange_rates"
+        url = "https://api.coingecko.com/api/v3/exchange_rates"
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=15)
-            ) as resp:
-                if resp.status != 200:
-                    return f"Error: API returned status {resp.status}"
-                data = await resp.json()
+        async with aiohttp.ClientSession() as session, session.get(
+            url, timeout=aiohttp.ClientTimeout(total=15)
+        ) as resp:
+            if resp.status != 200:
+                return f"Error: API returned status {resp.status}"
+            data = await resp.json()
 
         rates = data.get("rates", {})
 

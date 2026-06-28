@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from datetime import datetime
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -22,9 +22,9 @@ class NotesTool(BaseTool):
     def _load_index(self) -> dict:
         if os.path.exists(self.index_file):
             try:
-                with open(self.index_file, "r") as f:
+                with open(self.index_file) as f:
                     return json.load(f)
-            except (json.JSONDecodeError, IOError):
+            except (OSError, json.JSONDecodeError):
                 return {}
         return {}
 
@@ -81,10 +81,10 @@ class NotesTool(BaseTool):
     async def execute(
         self,
         action: str,
-        title: Optional[str] = None,
-        content: Optional[str] = None,
-        tags: Optional[str] = None,
-        query: Optional[str] = None,
+        title: str | None = None,
+        content: str | None = None,
+        tags: str | None = None,
+        query: str | None = None,
         limit: int = 10,
     ) -> str:
         if action == "add":
@@ -112,7 +112,7 @@ class NotesTool(BaseTool):
         else:
             return f"Unknown action: {action}"
 
-    def _add_note(self, title: str, content: str, tags: Optional[str]) -> str:
+    def _add_note(self, title: str, content: str, tags: str | None) -> str:
         safe_title = "".join(c if c.isalnum() or c in " -_" else "_" for c in title)
         note_file = os.path.join(self.notes_dir, f"{safe_title}.json")
 
@@ -149,7 +149,7 @@ class NotesTool(BaseTool):
             if note_title.lower() == title.lower():
                 note_file = os.path.join(self.notes_dir, note_info["file"])
                 try:
-                    with open(note_file, "r") as f:
+                    with open(note_file) as f:
                         note_data = json.load(f)
                     tags_str = ", ".join(note_data.get("tags", []))
                     return (
@@ -159,12 +159,12 @@ class NotesTool(BaseTool):
                         f"Modified: {note_data['modified']}\n\n"
                         f"{note_data['content']}"
                     )
-                except (IOError, json.JSONDecodeError) as e:
-                    return f"Error reading note: {str(e)}"
+                except (OSError, json.JSONDecodeError) as e:
+                    return f"Error reading note: {e!s}"
 
         return f"Note '{title}' not found"
 
-    def _list_notes(self, tags: Optional[str], limit: int) -> str:
+    def _list_notes(self, tags: str | None, limit: int) -> str:
         index = self._load_index()
 
         if not index:
@@ -176,9 +176,8 @@ class NotesTool(BaseTool):
 
         notes = []
         for title, info in index.items():
-            if filter_tags:
-                if not any(t in info.get("tags", []) for t in filter_tags):
-                    continue
+            if filter_tags and not any(t in info.get("tags", []) for t in filter_tags):
+                continue
             notes.append((title, info))
 
         notes = sorted(notes, key=lambda x: x[1].get("created", ""), reverse=True)[
@@ -243,10 +242,8 @@ class NotesTool(BaseTool):
         for note_title, note_info in list(index.items()):
             if note_title.lower() == title.lower():
                 note_file = os.path.join(self.notes_dir, note_info["file"])
-                try:
+                with contextlib.suppress(OSError):
                     os.remove(note_file)
-                except OSError:
-                    pass
 
                 del index[note_title]
                 self._save_index(index)
@@ -261,7 +258,7 @@ class NotesTool(BaseTool):
             if note_title.lower() == title.lower():
                 note_file = os.path.join(self.notes_dir, note_info["file"])
                 try:
-                    with open(note_file, "r") as f:
+                    with open(note_file) as f:
                         note_data = json.load(f)
 
                     new_tags = [t.strip().lower() for t in tags.split(",") if t.strip()]
@@ -281,7 +278,7 @@ class NotesTool(BaseTool):
                     self._save_index(index)
 
                     return f"Added tags to '{note_title}': {', '.join(new_tags)}"
-                except (IOError, json.JSONDecodeError) as e:
-                    return f"Error updating note: {str(e)}"
+                except (OSError, json.JSONDecodeError) as e:
+                    return f"Error updating note: {e!s}"
 
         return f"Note '{title}' not found"

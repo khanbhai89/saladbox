@@ -4,17 +4,15 @@
 import asyncio
 import os
 import sys
-import traceback
-from typing import Any
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from saladbox.core.tool_filter import ToolFilter, TOOL_KEYWORDS
+from saladbox.core.tool_filter import TOOL_KEYWORDS, ToolFilter
 from saladbox.core.tool_registry import ToolRegistry
-from saladbox.tools import get_enabled_tools, TOOL_MAP
+from saladbox.tools import TOOL_MAP, get_enabled_tools
 
 
-class TestRunner:
+class SimpleAssertionTracker:
     def __init__(self):
         self.passed = 0
         self.failed = 0
@@ -29,7 +27,7 @@ class TestRunner:
             self.errors.append((name, message))
             print(f"  ✗ {name}: {message}")
 
-    def summary(self):
+    def verify(self):
         total = self.passed + self.failed
         print(f"\n{'=' * 60}")
         print(f"Results: {self.passed}/{total} passed, {self.failed} failed")
@@ -37,13 +35,14 @@ class TestRunner:
             print("\nFailed tests:")
             for name, msg in self.errors:
                 print(f"  - {name}: {msg}")
-        return self.failed == 0
+        assert self.failed == 0, f"{self.failed} assertions failed: {self.errors}"
+
 
 
 def test_tool_filter_scoring():
     """Test tool scoring functionality."""
     print("\n[Test Tool Filter Scoring]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
     tool_filter = ToolFilter(max_tools=12)
 
     test_cases = [
@@ -77,13 +76,13 @@ def test_tool_filter_scoring():
             f"'{query[:30]}...' -> {expected_tool}", score > 0, f"Score was {score}"
         )
 
-    return runner.summary()
+    runner.verify()
 
 
 def test_tool_filter_best_selection():
     """Test that the correct tool gets the highest score."""
     print("\n[Test Tool Filter Best Selection]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
     tool_filter = ToolFilter(max_tools=12)
 
     config = {name: True for name in TOOL_MAP}
@@ -113,13 +112,13 @@ def test_tool_filter_best_selection():
             f"Expected {expected_tool}, got {best} (scores: {scores.get(expected_tool, 0)} vs {scores.get(best, 0)})",
         )
 
-    return runner.summary()
+    runner.verify()
 
 
 def test_tool_filtering():
     """Test tool filtering reduces tool count."""
     print("\n[Test Tool Filtering]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
     tool_filter = ToolFilter(max_tools=12)
 
     config = {name: True for name in TOOL_MAP}
@@ -151,13 +150,13 @@ def test_tool_filtering():
         f"Tools: {tool_names[:5]}...",
     )
 
-    return runner.summary()
+    runner.verify()
 
 
 async def test_tool_execution():
     """Test actual tool execution."""
     print("\n[Test Tool Execution]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
 
     config = {name: True for name in TOOL_MAP}
     tools = get_enabled_tools(config)
@@ -263,13 +262,13 @@ async def test_tool_execution():
         result.content[:50] if result.is_error else "OK",
     )
 
-    return runner.summary()
+    runner.verify()
 
 
 async def test_all_tools_execution():
     """Test that all tools can be instantiated and have correct schema."""
     print("\n[Test All Tools Schema]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
 
     config = {name: True for name in TOOL_MAP}
     tools = get_enabled_tools(config)
@@ -296,13 +295,13 @@ async def test_all_tools_execution():
             f"type={has_type}, name={has_name}, desc={has_desc}, params={has_params}",
         )
 
-    return runner.summary()
+    runner.verify()
 
 
 async def test_end_to_end_queries():
     """Test end-to-end query processing with filtered tools."""
     print("\n[Test End-to-End Query Processing]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
     tool_filter = ToolFilter(max_tools=12)
 
     config = {name: True for name in TOOL_MAP}
@@ -335,22 +334,22 @@ async def test_end_to_end_queries():
             result.content[:50] if result.is_error else "OK",
         )
 
-    return runner.summary()
+    runner.verify()
 
 
 def test_all_tools_have_keywords():
     """Verify all tools have keyword definitions."""
     print("\n[Test All Tools Have Keywords]")
-    runner = TestRunner()
+    runner = SimpleAssertionTracker()
 
     missing = []
-    for tool_name in TOOL_MAP.keys():
+    for tool_name in TOOL_MAP:
         if tool_name not in TOOL_KEYWORDS:
             missing.append(tool_name)
 
     runner.test("All tools have keywords", len(missing) == 0, f"Missing: {missing}")
 
-    return runner.summary()
+    runner.verify()
 
 
 async def main():
@@ -358,25 +357,21 @@ async def main():
     print("TOOL CALLING COMPREHENSIVE TESTS")
     print("=" * 60)
 
-    results = []
-
-    results.append(test_tool_filter_scoring())
-    results.append(test_tool_filter_best_selection())
-    results.append(test_tool_filtering())
-    results.append(await test_tool_execution())
-    results.append(await test_all_tools_execution())
-    results.append(await test_end_to_end_queries())
-    results.append(test_all_tools_have_keywords())
-
-    print("\n" + "=" * 60)
-    print("FINAL RESULTS")
-    print("=" * 60)
-
-    if all(results):
+    try:
+        test_tool_filter_scoring()
+        test_tool_filter_best_selection()
+        test_tool_filtering()
+        await test_tool_execution()
+        await test_all_tools_execution()
+        await test_end_to_end_queries()
+        test_all_tools_have_keywords()
+        print("\n" + "=" * 60)
         print("✓ ALL TESTS PASSED")
         return 0
-    else:
+    except AssertionError as e:
+        print("\n" + "=" * 60)
         print("✗ SOME TESTS FAILED")
+        print(e)
         return 1
 
 

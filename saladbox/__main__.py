@@ -8,8 +8,8 @@ import logging
 import sys
 from pathlib import Path
 
-from saladbox.config import load_config
 from saladbox.app import Application
+from saladbox.config import load_config
 
 
 def main():

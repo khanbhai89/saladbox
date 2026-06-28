@@ -10,7 +10,6 @@ import re
 from datetime import datetime, timedelta
 from datetime import time as dt_time
 
-
 # Day-of-week names
 _DOW = {
     "monday": 0, "mon": 0,

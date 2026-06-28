@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Union
 
 from saladbox.tools.base import BaseTool
 
@@ -71,21 +70,18 @@ class CalculatorTool(BaseTool):
             result = eval(code, {"__builtins__": {}}, self.ALLOWED_NAMES)
 
             if isinstance(result, float):
-                if result == int(result):
-                    result = int(result)
-                else:
-                    result = round(result, precision)
+                result = int(result) if result == int(result) else round(result, precision)
 
             return f"{expression} = {result}"
 
         except ZeroDivisionError:
             return "Error: Division by zero"
         except ValueError as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
         except SyntaxError:
             return "Error: Invalid mathematical expression"
         except Exception as e:
-            return f"Error evaluating expression: {str(e)}"
+            return f"Error evaluating expression: {e!s}"
 
     def _is_safe(self, expr: str) -> bool:
         safe_pattern = r"^[\d\s\+\-\*\/\%\(\)\.\,\w]+$"
@@ -102,8 +98,4 @@ class CalculatorTool(BaseTool):
             "getattr",
             "setattr",
         ]
-        for word in dangerous:
-            if word in expr.lower():
-                return False
-
-        return True
+        return all(word not in expr.lower() for word in dangerous)

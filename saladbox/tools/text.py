@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Optional, List
 from collections import Counter
 
 from saladbox.tools.base import BaseTool
@@ -80,9 +79,9 @@ class TextTool(BaseTool):
         self,
         action: str,
         text: str,
-        pattern: Optional[str] = None,
-        replacement: Optional[str] = None,
-        delimiter: Optional[str] = None,
+        pattern: str | None = None,
+        replacement: str | None = None,
+        delimiter: str | None = None,
     ) -> str:
         try:
             if action == "upper":
@@ -222,4 +221,4 @@ class TextTool(BaseTool):
                 return f"Unknown action: {action}"
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"

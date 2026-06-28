@@ -11,7 +11,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # Default max characters for tool output (tuned for 8K context local models)
 DEFAULT_MAX_CHARS = 2000
 COMPACT_MAX_CHARS = 1200

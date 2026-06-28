@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from saladbox.config import AppConfig
-from saladbox.core.chat_store import ChatStore
-from saladbox.core.engine import AgentEngine
-from saladbox.core.types import ConversationContext
+if TYPE_CHECKING:
+    from saladbox.config import AppConfig
+    from saladbox.core.chat_store import ChatStore
+    from saladbox.core.engine import AgentEngine
+    from saladbox.core.types import ConversationContext
 
 logger = logging.getLogger(__name__)
 

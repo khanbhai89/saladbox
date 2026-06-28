@@ -6,13 +6,13 @@ Updated: parallel tool calls, reasoning model support, token-aware memory.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import signal
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from saladbox.adapters.base import BaseAdapter
 from saladbox.adapters.cli import CLIAdapter
-from saladbox.config import AppConfig
 from saladbox.core.chat_store import ChatStore
 from saladbox.core.engine import AgentEngine
 from saladbox.core.llm import create_llm_client
@@ -21,6 +21,10 @@ from saladbox.core.memory import ConversationMemory
 from saladbox.core.skills import SkillManager
 from saladbox.core.tool_registry import ToolRegistry
 from saladbox.tools import get_enabled_tools
+
+if TYPE_CHECKING:
+    from saladbox.adapters.base import BaseAdapter
+    from saladbox.config import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +142,7 @@ class Application:
         async def _reminder_callback(message: str, metadata: dict) -> None:
             """Deliver reminder to all notification-capable adapters."""
             execute_prompt = metadata.get("execute_prompt")
-            
+
             if execute_prompt:
                 logger.info(f"Executing background task from reminder: {execute_prompt}")
                 from saladbox.core.types import ConversationContext
@@ -148,20 +152,18 @@ class Application:
                     channel_id="background",
                     platform="system"
                 )
-                
+
                 async def _run_agent():
                     try:
                         response = await self.engine.process(execute_prompt, context)
                         # Optionally notify with the final result
                         if response.strip():
                             for adapter in notification_adapters:
-                                try:
+                                with contextlib.suppress(Exception):
                                     await adapter.send_notification(f"Task result: {response}")
-                                except Exception:
-                                    pass
                     except Exception as e:
                         logger.error(f"Background task failed: {e}")
-                
+
                 asyncio.create_task(_run_agent())
 
             for adapter in notification_adapters:
@@ -244,10 +246,8 @@ class Application:
 
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
-            try:
+            with contextlib.suppress(NotImplementedError):
                 loop.add_signal_handler(sig, _signal_handler)
-            except NotImplementedError:
-                pass
 
         tasks = []
         for adapter in self.adapters:
@@ -275,7 +275,7 @@ class Application:
                 task.add_done_callback(_on_adapter_crash)
 
         try:
-            done, pending = await asyncio.wait(
+            _done, _pending = await asyncio.wait(
                 wait_tasks,
                 return_when=asyncio.FIRST_COMPLETED,
             )
@@ -299,10 +299,8 @@ class Application:
             for task in tasks:
                 if not task.done():
                     task.cancel()
-                    try:
+                    with contextlib.suppress(asyncio.CancelledError):
                         await task
-                    except asyncio.CancelledError:
-                        pass
 
             # Close chat store — always, even on crash
             if self.chat_store:

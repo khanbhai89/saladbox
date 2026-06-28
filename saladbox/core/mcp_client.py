@@ -9,12 +9,11 @@ Protocol: JSON-RPC 2.0 over stdin/stdout (newline-delimited).
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
-import uuid
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from saladbox.tools.base import BaseTool
@@ -134,7 +133,7 @@ class MCPServerConnection:
             else:
                 env[key] = val
 
-        cmd = [self.config.command] + self.config.args
+        cmd = [self.config.command, *self.config.args]
         logger.info(f"[MCP:{self.config.name}] Starting: {' '.join(cmd)}")
 
         try:
@@ -172,20 +171,16 @@ class MCPServerConnection:
         self._ready = False
         if self._reader_task and not self._reader_task.done():
             self._reader_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._reader_task
-            except asyncio.CancelledError:
-                pass
 
         if self._process:
             try:
                 self._process.terminate()
                 await asyncio.wait_for(self._process.wait(), timeout=5)
-            except (asyncio.TimeoutError, ProcessLookupError):
-                try:
+            except (TimeoutError, ProcessLookupError):
+                with contextlib.suppress(ProcessLookupError):
                     self._process.kill()
-                except ProcessLookupError:
-                    pass
             self._process = None
 
         # Cancel pending futures
@@ -274,7 +269,7 @@ class MCPServerConnection:
 
         try:
             return await asyncio.wait_for(fut, timeout=timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self._pending.pop(req_id, None)
             raise RuntimeError(
                 f"[MCP:{self.config.name}] Timeout waiting for {method}"

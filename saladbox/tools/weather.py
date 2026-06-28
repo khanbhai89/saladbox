@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import aiohttp
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -80,36 +79,34 @@ class WeatherTool(BaseTool):
             url = f"https://wttr.in/{location}?{unit_code}"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                    headers={"User-Agent": "curl"},
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Error: Weather service returned status {resp.status}"
-                    text = await resp.text()
+            async with aiohttp.ClientSession() as session, session.get(
+                url,
+                timeout=aiohttp.ClientTimeout(total=10),
+                headers={"User-Agent": "curl"},
+            ) as resp:
+                if resp.status != 200:
+                    return f"Error: Weather service returned status {resp.status}"
+                text = await resp.text()
 
             return text.strip()
 
         except aiohttp.ClientError as e:
-            return f"Error fetching weather: {str(e)}"
+            return f"Error fetching weather: {e!s}"
         except Exception as e:
-            return f"Unexpected error: {str(e)}"
+            return f"Unexpected error: {e!s}"
 
     async def _get_json(self, location: str, units: str, forecast: str) -> str:
         url = f"https://wttr.in/{location}?format=j1"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                    headers={"User-Agent": "curl"},
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Error: Weather service returned status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url,
+                timeout=aiohttp.ClientTimeout(total=10),
+                headers={"User-Agent": "curl"},
+            ) as resp:
+                if resp.status != 200:
+                    return f"Error: Weather service returned status {resp.status}"
+                data = await resp.json()
 
             current = data.get("current_condition", [{}])[0]
             location_data = data.get("nearest_area", [{}])[0]
@@ -167,6 +164,6 @@ class WeatherTool(BaseTool):
             return json.dumps(result, indent=2)
 
         except aiohttp.ClientError as e:
-            return f"Error fetching weather: {str(e)}"
+            return f"Error fetching weather: {e!s}"
         except Exception as e:
-            return f"Unexpected error: {str(e)}"
+            return f"Unexpected error: {e!s}"

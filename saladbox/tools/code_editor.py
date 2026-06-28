@@ -904,10 +904,7 @@ class CodeEditorTool(BaseTool):
         if new_lines and not new_lines[-1].endswith("\n"):
             new_lines[-1] += "\n"
 
-        if before:
-            idx = line_num - 1
-        else:
-            idx = line_num
+        idx = line_num - 1 if before else line_num
 
         result_lines = lines[:idx] + new_lines + lines[idx:]
         new_content = "".join(result_lines)
@@ -1220,7 +1217,7 @@ class CodeEditorTool(BaseTool):
 
                 return result
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # For dev servers: they don't exit, so capture what we have
                 try:
                     proc.terminate()
@@ -1232,7 +1229,7 @@ class CodeEditorTool(BaseTool):
                 result = f"Command: {cmd}\n(timed out after {timeout}s — likely a running server)\n\n"
                 if output:
                     result += _truncate(output, 4000)
-                result += f"\n\nTo keep a server running, use the process_manager tool instead."
+                result += "\n\nTo keep a server running, use the process_manager tool instead."
                 return result
 
         except Exception as e:

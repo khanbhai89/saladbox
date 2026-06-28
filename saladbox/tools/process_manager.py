@@ -137,7 +137,7 @@ class ProcessManagerTool(BaseTool):
         mp.process.send_signal(signal.SIGTERM)
         try:
             await asyncio.wait_for(mp.process.wait(), timeout=5)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             mp.process.kill()
             await mp.process.wait()
 

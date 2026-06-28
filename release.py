@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import sys
+import json
 import os
 import re
-import json
 import subprocess
+import sys
+
 
 def run_cmd(cmd, cwd=None, capture=False):
     """Run a shell command and return status/output."""
@@ -18,7 +19,7 @@ def run_cmd(cmd, cwd=None, capture=False):
 
 def get_current_version():
     """Extract version from pyproject.toml."""
-    with open("pyproject.toml", "r") as f:
+    with open("pyproject.toml") as f:
         content = f.read()
     match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
     if not match:
@@ -44,7 +45,7 @@ def update_version_in_files(new_version):
     """Update version in all project config files."""
     # 1. pyproject.toml
     print("Updating pyproject.toml...")
-    with open("pyproject.toml", "r") as f:
+    with open("pyproject.toml") as f:
         content = f.read()
     new_content = re.sub(
         r'^(version\s*=\s*["\'])([^"\']+)(["\'])',
@@ -59,7 +60,7 @@ def update_version_in_files(new_version):
     print("Updating saladbox/__init__.py...")
     init_path = "saladbox/__init__.py"
     if os.path.exists(init_path):
-        with open(init_path, "r") as f:
+        with open(init_path) as f:
             content = f.read()
         new_content = re.sub(
             r'^(__version__\s*=\s*["\'])([^"\']+)(["\'])',
@@ -74,7 +75,7 @@ def update_version_in_files(new_version):
     print("Updating electron/package.json...")
     electron_pkg = "electron/package.json"
     if os.path.exists(electron_pkg):
-        with open(electron_pkg, "r") as f:
+        with open(electron_pkg) as f:
             data = json.load(f)
         data["version"] = new_version
         with open(electron_pkg, "w") as f:
@@ -91,10 +92,10 @@ def get_changelog():
     except Exception:
         print("No previous tags found. Commits:")
         log_cmd = "git log --oneline"
-    
+
     commits = run_cmd(log_cmd, capture=True)
     print(commits if commits else "No new commits.")
-    
+
     print("\nEnter release notes / changelog details (Press Ctrl+D or type EOF on a new line when finished):")
     notes = []
     while True:
@@ -119,18 +120,18 @@ def main():
 
     current = get_current_version()
     print(f"Current version: {current}")
-    
+
     bump = input("Select bump type [patch/minor/major/custom] (default: patch): ").strip().lower()
     if not bump:
         bump = 'patch'
-        
+
     if bump in ['patch', 'minor', 'major']:
         new_version = bump_version(current, bump)
     elif bump == 'custom':
         new_version = input("Enter custom version (e.g. 0.4.0): ").strip()
     else:
         new_version = bump
-        
+
     print(f"Target Release Version: {new_version}")
     confirm = input("Confirm update version? (y/N): ")
     if confirm.lower() != 'y':
@@ -139,28 +140,28 @@ def main():
 
     # Update files
     update_version_in_files(new_version)
-    
+
     # Get changelog
     notes = get_changelog()
-    
+
     # Git stage & commit
     print("\n--- Git Commit & Tag ---")
     run_cmd("git add pyproject.toml saladbox/__init__.py electron/package.json")
     run_cmd(f'git commit -m "chore(release): v{new_version}"')
     run_cmd(f'git tag -a v{new_version} -m "Release v{new_version}\n\n{notes}"')
-    
+
     # Push to origin
     push = input("\nPush commits and tags to GitHub? (y/N): ")
     if push.lower() == 'y':
         run_cmd("git push origin main")
         run_cmd(f"git push origin v{new_version}")
-        
+
         # Build Electron & Upload Release
         build_electron = input("\nDo you want to build and release the Electron app? (y/N): ")
         if build_electron.lower() == 'y':
             print("\n--- Building Electron App ---")
             run_cmd("npm run build", cwd="electron")
-            
+
             print("\n--- Creating GitHub Release & Uploading Artifacts ---")
             # Find generated files in electron/dist
             assets = []
@@ -169,7 +170,7 @@ def main():
                 for f in os.listdir(dist_dir):
                     if f.endswith(f"-{new_version}-arm64.dmg") or f.endswith(f"-{new_version}-arm64-mac.zip") or f.endswith(f"-{new_version}-mac.zip"):
                         assets.append(os.path.join(dist_dir, f))
-            
+
             asset_args = " ".join([f'"{a}"' for a in assets])
             if asset_args:
                 release_cmd = f'gh release create v{new_version} {asset_args} --title "v{new_version}" --notes "{notes}"'
@@ -177,7 +178,7 @@ def main():
                 print(f"\nRelease v{new_version} successfully published to GitHub!")
             else:
                 print("No matching Electron artifacts found to upload.")
-    
+
     print("\nDone!")
 
 if __name__ == "__main__":

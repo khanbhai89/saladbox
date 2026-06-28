@@ -1,5 +1,7 @@
 import asyncio
+
 from saladbox.tools.browser import BrowserTool
+
 
 async def test():
     tool = BrowserTool()

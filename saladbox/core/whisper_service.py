@@ -7,8 +7,10 @@ import io
 import logging
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from saladbox.config import WhisperConfig
+if TYPE_CHECKING:
+    from saladbox.config import WhisperConfig
 
 logger = logging.getLogger(__name__)
 

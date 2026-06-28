@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
 
@@ -388,7 +387,7 @@ def run_setup(project_root: Path) -> bool:
 
 def should_run_setup(project_root: Path) -> bool:
     env_path = project_root / ".env"
-    config_path = project_root / "config.yaml"
+    project_root / "config.yaml"
 
     if not env_path.exists():
         return True

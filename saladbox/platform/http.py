@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -45,7 +45,7 @@ _BLOCK_PATTERNS = [
 ]
 
 # Module-level shared client
-_client: Optional[httpx.AsyncClient] = None
+_client: httpx.AsyncClient | None = None
 
 
 def _get_browser_headers(url: str = "") -> dict[str, str]:
@@ -112,7 +112,7 @@ def is_blocked_domain(url: str) -> bool:
 async def fetch_url(
     url: str,
     timeout: int = 15,
-    headers: Optional[dict[str, str]] = None,
+    headers: dict[str, str] | None = None,
 ) -> tuple[int, str]:
     """Fetch a URL and return (status_code, text_content).
 
@@ -147,7 +147,7 @@ async def fetch_url(
 async def fetch_json(
     url: str,
     timeout: int = 15,
-    headers: Optional[dict[str, str]] = None,
+    headers: dict[str, str] | None = None,
 ) -> tuple[int, Any]:
     """Fetch a URL and parse JSON response.
 

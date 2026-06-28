@@ -18,7 +18,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import yaml
 
@@ -57,10 +56,7 @@ class Skill:
                 return True
 
         # Check keyword triggers
-        if self._trigger_pattern and self._trigger_pattern.search(text):
-            return True
-
-        return False
+        return bool(self._trigger_pattern and self._trigger_pattern.search(text))
 
     def get_user_input_without_command(self, user_input: str) -> str:
         """Strip the slash command from user input, return the rest."""

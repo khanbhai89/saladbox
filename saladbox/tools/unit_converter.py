@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from saladbox.tools.base import BaseTool
 
 
@@ -158,10 +156,10 @@ class UnitConverterTool(BaseTool):
     async def execute(
         self,
         action: str,
-        category: Optional[str] = None,
-        value: Optional[float] = None,
-        from_unit: Optional[str] = None,
-        to_unit: Optional[str] = None,
+        category: str | None = None,
+        value: float | None = None,
+        from_unit: str | None = None,
+        to_unit: str | None = None,
     ) -> str:
         if action == "list":
             if category:
@@ -184,7 +182,7 @@ class UnitConverterTool(BaseTool):
         else:
             return f"Unknown action: {action}"
 
-    def _detect_category(self, from_unit: str, to_unit: str) -> Optional[str]:
+    def _detect_category(self, from_unit: str, to_unit: str) -> str | None:
         categories = [
             ("length", self.LENGTH_UNITS),
             ("weight", self.WEIGHT_UNITS),

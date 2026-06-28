@@ -113,7 +113,7 @@ class SchedulerTool(BaseTool):
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+            stdout, _stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
             output = stdout.decode(errors="replace") if stdout else ""
             if job_id not in self._task_outputs:
                 self._task_outputs[job_id] = []

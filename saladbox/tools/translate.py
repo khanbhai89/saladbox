@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import aiohttp
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -91,9 +90,9 @@ class TranslateTool(BaseTool):
     async def execute(
         self,
         action: str,
-        text: Optional[str] = None,
-        source_lang: Optional[str] = None,
-        target_lang: Optional[str] = None,
+        text: str | None = None,
+        source_lang: str | None = None,
+        target_lang: str | None = None,
     ) -> str:
         if action == "translate":
             if not text or not target_lang:
@@ -111,7 +110,7 @@ class TranslateTool(BaseTool):
         else:
             return f"Unknown action: {action}"
 
-    async def _translate(self, text: str, source: Optional[str], target: str) -> str:
+    async def _translate(self, text: str, source: str | None, target: str) -> str:
         source = source or "auto"
 
         url = "https://api.mymemory.translated.net/get"
@@ -121,13 +120,12 @@ class TranslateTool(BaseTool):
         }
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, params=params, timeout=aiohttp.ClientTimeout(total=15)
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Translation failed with status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url, params=params, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
+                if resp.status != 200:
+                    return f"Translation failed with status {resp.status}"
+                data = await resp.json()
 
             if data.get("responseStatus") != 200:
                 return (
@@ -137,7 +135,7 @@ class TranslateTool(BaseTool):
             translated = data.get("responseData", {}).get("translatedText", "")
             detected_lang = data.get("responseData", {}).get("detectedLanguage", {})
 
-            result = [f"**Translation**"]
+            result = ["**Translation**"]
 
             if detected_lang and source == "auto":
                 src_lang = detected_lang.get("language", source)
@@ -155,9 +153,9 @@ class TranslateTool(BaseTool):
             return "\n".join(result)
 
         except aiohttp.ClientError as e:
-            return f"Translation error: {str(e)}"
+            return f"Translation error: {e!s}"
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     async def _detect_language(self, text: str) -> str:
         url = "https://api.mymemory.translated.net/get"
@@ -167,13 +165,12 @@ class TranslateTool(BaseTool):
         }
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, params=params, timeout=aiohttp.ClientTimeout(total=15)
-                ) as resp:
-                    if resp.status != 200:
-                        return f"Detection failed with status {resp.status}"
-                    data = await resp.json()
+            async with aiohttp.ClientSession() as session, session.get(
+                url, params=params, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
+                if resp.status != 200:
+                    return f"Detection failed with status {resp.status}"
+                data = await resp.json()
 
             detected = data.get("responseData", {}).get("detectedLanguage", {})
 
@@ -194,7 +191,7 @@ class TranslateTool(BaseTool):
             )
 
         except Exception as e:
-            return f"Detection error: {str(e)}"
+            return f"Detection error: {e!s}"
 
     def _list_languages(self) -> str:
         result = ["**Supported Languages**\n"]

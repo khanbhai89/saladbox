@@ -648,7 +648,7 @@ class ToolFilter:
             # If the keyword has no alphanumeric characters, check substring match (e.g. "#")
             if not any(c.isalnum() or c == '_' for c in kw):
                 return kw in q
-            
+
             # Construct a regex that respects word boundaries for alphanumeric bounds
             pattern = r""
             if kw[0].isalnum() or kw[0] == '_':

@@ -53,8 +53,8 @@ def _load_mflux_model(model_name: str = "schnell", quantize: int = 4):
         _flux_model = None
 
     try:
-        from mflux.models.flux.variants.txt2img.flux import Flux1
         from mflux.models.common.config.model_config import ModelConfig
+        from mflux.models.flux.variants.txt2img.flux import Flux1
 
         logger.info(
             f"[IMAGE_GEN] Loading FLUX.1-{model_name} model "
@@ -280,33 +280,32 @@ class ImageGenTool(BaseTool):
                 "sampler_name": "Euler",
             }
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    f"{self._config_drawthings_url}/sdapi/v1/txt2img",
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=300),
-                ) as resp:
-                    if resp.status != 200:
-                        logger.warning(
-                            f"[IMAGE_GEN] Draw Things returned status {resp.status}"
-                        )
-                        return None
-
-                    data = await resp.json()
-                    images = data.get("images", [])
-                    if not images:
-                        logger.warning("[IMAGE_GEN] Draw Things returned no images")
-                        return None
-
-                    # Decode first image and save
-                    image_data = base64.b64decode(images[0])
-                    with open(save_path, "wb") as f:
-                        f.write(image_data)
-
-                    logger.info(
-                        f"[IMAGE_GEN] Draw Things generation complete: {save_path}"
+            async with aiohttp.ClientSession() as session, session.post(
+                f"{self._config_drawthings_url}/sdapi/v1/txt2img",
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=300),
+            ) as resp:
+                if resp.status != 200:
+                    logger.warning(
+                        f"[IMAGE_GEN] Draw Things returned status {resp.status}"
                     )
-                    return "drawthings"
+                    return None
+
+                data = await resp.json()
+                images = data.get("images", [])
+                if not images:
+                    logger.warning("[IMAGE_GEN] Draw Things returned no images")
+                    return None
+
+                # Decode first image and save
+                image_data = base64.b64decode(images[0])
+                with open(save_path, "wb") as f:
+                    f.write(image_data)
+
+                logger.info(
+                    f"[IMAGE_GEN] Draw Things generation complete: {save_path}"
+                )
+                return "drawthings"
 
         except Exception as e:
             logger.error(f"[IMAGE_GEN] Draw Things generation failed: {e}")

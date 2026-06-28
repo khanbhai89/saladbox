@@ -19,16 +19,20 @@ import os
 import re
 import tempfile
 import time
-from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING
 
-from saladbox.config import AppConfig
-from saladbox.core.llm import BaseLLMClient
-from saladbox.core.memory import ConversationMemory
 from saladbox.core.skills import SkillManager
 from saladbox.core.tool_filter import ToolFilter
-from saladbox.core.tool_registry import ToolRegistry
-from saladbox.core.types import ConversationContext, Message, Role, TaskType
+from saladbox.core.types import ConversationContext, Message, Role
 from saladbox.platform.output import compress_result
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from saladbox.config import AppConfig
+    from saladbox.core.llm import BaseLLMClient
+    from saladbox.core.memory import ConversationMemory
+    from saladbox.core.tool_registry import ToolRegistry
 
 # Screenshot directory (must match screen_capture tool)
 _SCREENSHOT_DIR = os.path.join(tempfile.gettempdir(), "saladbox_screenshots")

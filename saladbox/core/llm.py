@@ -17,10 +17,10 @@ import re
 import time
 import uuid
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ollama import AsyncClient
+
 # openai v2: same surface, some internals changed
 from openai import AsyncOpenAI
 from tenacity import (
@@ -30,8 +30,12 @@ from tenacity import (
     wait_exponential,
 )
 
-from saladbox.config import OllamaConfig, OpenRouterConfig
 from saladbox.core.types import Message, Role, TaskType, TokenUsage, ToolCall
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
+    from saladbox.config import OllamaConfig, OpenRouterConfig
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +214,7 @@ class OllamaClient(BaseLLMClient):
             result.append(msg)
         if not injected:
             # No system message — prepend one
-            result = [{"role": "system", "content": _QWEN3_NO_THINK}] + result
+            result = [{"role": "system", "content": _QWEN3_NO_THINK}, *result]
         return result
 
     def _to_ollama_format(

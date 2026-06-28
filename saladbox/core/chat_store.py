@@ -7,7 +7,7 @@ import logging
 import sqlite3
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -100,7 +100,7 @@ class ChatStore:
         if not self._conn:
             raise RuntimeError("ChatStore is closed")
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         msg_id = str(uuid.uuid4())
 
         with self._lock:

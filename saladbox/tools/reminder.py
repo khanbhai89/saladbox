@@ -15,11 +15,14 @@ import json
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable, Awaitable, Optional
+from typing import TYPE_CHECKING, Any
 
 from saladbox.platform.output import ToolOutput
-from saladbox.platform.parsing import parse_natural_time, parse_duration_seconds
+from saladbox.platform.parsing import parse_duration_seconds, parse_natural_time
 from saladbox.tools.base import BaseTool
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +33,14 @@ class ReminderTool(BaseTool):
     max_output_chars = 1200
 
     # Notification callback: set by the app to push to Electron/CLI/Slack
-    _notify_callback: Optional[Callable[[str, dict], Awaitable[None]]] = None
+    _notify_callback: Callable[[str, dict], Awaitable[None]] | None = None
 
     def __init__(self):
         self._reminders: dict[str, dict] = {}
         self._lock = asyncio.Lock()
         self._storage_path = Path.home() / ".saladbox" / "reminders.json"
         self._load_reminders()
-        self._checker_task: Optional[asyncio.Task] = None
+        self._checker_task: asyncio.Task | None = None
 
     @classmethod
     def set_notify_callback(cls, callback: Callable[[str, dict], Awaitable[None]]):
@@ -149,11 +152,11 @@ class ReminderTool(BaseTool):
                         "execute_prompt": reminder.get("execute_prompt", ""),
                     },
                 )
-                logger.info(f"[REMINDER] Callback invoked successfully")
+                logger.info("[REMINDER] Callback invoked successfully")
             except Exception as e:
                 logger.error(f"Notification callback failed: {e}")
         else:
-            logger.warning(f"[REMINDER] No callback set - notification will be missed!")
+            logger.warning("[REMINDER] No callback set - notification will be missed!")
             # Fallback to console
             print(f"\n🔔 {full_message}\n")
 
@@ -327,7 +330,7 @@ class ReminderTool(BaseTool):
 
         return self.format_output(output.render())
 
-    def _parse_repeat(self, repeat: str) -> Optional[int]:
+    def _parse_repeat(self, repeat: str) -> int | None:
         """Parse a repeat/recurrence string into seconds."""
         repeat = repeat.strip().lower()
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -105,9 +104,9 @@ class GitTool(BaseTool):
 
         match action:
             case "init":
-                return await self._run(f"git init", work_dir)
+                return await self._run("git init", work_dir)
             case "status":
-                return await self._run(f"git status", work_dir)
+                return await self._run("git status", work_dir)
             case "add":
                 if not files:
                     files = "."
@@ -154,7 +153,7 @@ class GitTool(BaseTool):
         )
         try:
             stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             proc.kill()
             await proc.communicate()
             return "Command timed out after 60s"

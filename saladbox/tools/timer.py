@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
 from datetime import datetime, timedelta
-from typing import Optional, Dict
 
 from saladbox.tools.base import BaseTool
 
@@ -14,8 +12,8 @@ class TimerTool(BaseTool):
     """Timer, stopwatch, and countdown functionality."""
 
     def __init__(self):
-        self._timers: Dict[str, Dict] = {}
-        self._stopwatches: Dict[str, float] = {}
+        self._timers: dict[str, dict] = {}
+        self._stopwatches: dict[str, float] = {}
 
     @property
     def name(self) -> str:
@@ -93,11 +91,10 @@ class TimerTool(BaseTool):
     async def execute(
         self,
         action: str,
-        name: Optional[str] = None,
-        duration: Optional[str] = None,
-        message: Optional[str] = None,
+        name: str | None = None,
+        duration: str | None = None,
+        message: str | None = None,
     ) -> str:
-        import re
 
         timer_name = name or "default"
 
@@ -128,7 +125,7 @@ class TimerTool(BaseTool):
             return f"Unknown action: {action}"
 
     async def _start_timer(
-        self, name: str, duration: str, message: Optional[str]
+        self, name: str, duration: str, message: str | None
     ) -> str:
         seconds = self._parse_duration(duration)
         if seconds <= 0:
@@ -179,10 +176,7 @@ class TimerTool(BaseTool):
 
         for name, timer in sorted(self._timers.items()):
             remaining = (timer["end_time"] - datetime.now()).total_seconds()
-            if remaining <= 0:
-                status = "COMPLETED"
-            else:
-                status = self._format_duration(int(remaining))
+            status = "COMPLETED" if remaining <= 0 else self._format_duration(int(remaining))
             result.append(f"- {name}: {status}")
 
         return "\n".join(result)

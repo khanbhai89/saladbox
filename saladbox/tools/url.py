@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
-from typing import Optional
+from urllib.parse import parse_qs, urlparse, urlunparse
 
 from saladbox.tools.base import BaseTool
 
@@ -82,15 +81,15 @@ class URLTool(BaseTool):
     async def execute(
         self,
         action: str,
-        url: Optional[str] = None,
-        scheme: Optional[str] = None,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        path: Optional[str] = None,
-        query: Optional[str] = None,
-        fragment: Optional[str] = None,
-        base_url: Optional[str] = None,
-        relative_url: Optional[str] = None,
+        url: str | None = None,
+        scheme: str | None = None,
+        host: str | None = None,
+        port: int | None = None,
+        path: str | None = None,
+        query: str | None = None,
+        fragment: str | None = None,
+        base_url: str | None = None,
+        relative_url: str | None = None,
     ) -> str:
         if action == "parse":
             if not url:
@@ -142,16 +141,16 @@ class URLTool(BaseTool):
             return "\n".join(result)
 
         except Exception as e:
-            return f"Error parsing URL: {str(e)}"
+            return f"Error parsing URL: {e!s}"
 
     def _build_url(
         self,
-        scheme: Optional[str],
-        host: Optional[str],
-        port: Optional[int],
-        path: Optional[str],
-        query: Optional[str],
-        fragment: Optional[str],
+        scheme: str | None,
+        host: str | None,
+        port: int | None,
+        path: str | None,
+        query: str | None,
+        fragment: str | None,
     ) -> str:
         if not host:
             return "Error: 'host' required to build URL"
@@ -189,15 +188,14 @@ class URLTool(BaseTool):
             return "\n".join(result)
 
         except Exception as e:
-            return f"Error parsing query: {str(e)}"
+            return f"Error parsing query: {e!s}"
 
     def _extract_domain(self, url: str) -> str:
         try:
             parsed = urlparse(url)
 
-            if not parsed.hostname:
-                if not url.startswith(("http://", "https://")):
-                    parsed = urlparse(f"https://{url}")
+            if not parsed.hostname and not url.startswith(("http://", "https://")):
+                parsed = urlparse(f"https://{url}")
 
             hostname = parsed.hostname or url
 
@@ -219,7 +217,7 @@ class URLTool(BaseTool):
             )
 
         except Exception as e:
-            return f"Error extracting domain: {str(e)}"
+            return f"Error extracting domain: {e!s}"
 
     def _join_urls(self, base_url: str, relative_url: str) -> str:
         try:
@@ -230,7 +228,7 @@ class URLTool(BaseTool):
             return f"**URL Join Result**\nBase: {base_url}\nRelative: {relative_url}\nResult: {joined}"
 
         except Exception as e:
-            return f"Error joining URLs: {str(e)}"
+            return f"Error joining URLs: {e!s}"
 
     def _validate_url(self, url: str) -> str:
         issues = []
@@ -256,11 +254,11 @@ class URLTool(BaseTool):
 
             if issues:
                 return (
-                    f"**URL Validation**\nStatus: Potentially invalid\nIssues:\n- "
+                    "**URL Validation**\nStatus: Potentially invalid\nIssues:\n- "
                     + "\n- ".join(issues)
                 )
             else:
                 return f"**URL Validation**\nStatus: Valid\nURL: {url}"
 
         except Exception as e:
-            return f"Invalid: {str(e)}"
+            return f"Invalid: {e!s}"

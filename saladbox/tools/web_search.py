@@ -10,12 +10,12 @@ Optimized for local models:
 
 from __future__ import annotations
 
-import re
 import logging
+import re
 from html import unescape
-from urllib.parse import quote_plus, urlparse, unquote
+from urllib.parse import quote_plus, unquote, urlparse
 
-from saladbox.platform.http import fetch_url, fetch_json, is_blocked_domain, is_blocked
+from saladbox.platform.http import fetch_json, fetch_url, is_blocked, is_blocked_domain
 from saladbox.platform.output import ToolOutput
 from saladbox.tools.base import BaseTool
 

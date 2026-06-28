@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import base64
-from typing import Optional
 from io import BytesIO
 
 from saladbox.tools.base import BaseTool
@@ -80,13 +79,13 @@ class QRCodeTool(BaseTool):
     async def execute(
         self,
         action: str,
-        data: Optional[str] = None,
-        ssid: Optional[str] = None,
-        password: Optional[str] = None,
+        data: str | None = None,
+        ssid: str | None = None,
+        password: str | None = None,
         security: str = "WPA",
-        name: Optional[str] = None,
-        phone: Optional[str] = None,
-        email: Optional[str] = None,
+        name: str | None = None,
+        phone: str | None = None,
+        email: str | None = None,
         size: int = 200,
     ) -> str:
         if not QRCODE_AVAILABLE:
@@ -122,10 +121,10 @@ class QRCodeTool(BaseTool):
                 return f"Unknown action: {action}"
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     def _generate_qr(
-        self, data: str, size: int = 200, label: Optional[str] = None
+        self, data: str, size: int = 200, label: str | None = None
     ) -> str:
         qr = qrcode.QRCode(
             version=1,
@@ -155,7 +154,7 @@ class QRCodeTool(BaseTool):
         return "\n".join(result)
 
     def _create_vcard(
-        self, name: str, phone: Optional[str], email: Optional[str]
+        self, name: str, phone: str | None, email: str | None
     ) -> str:
         name_parts = name.split()
         last_name = name_parts[-1] if len(name_parts) > 1 else ""

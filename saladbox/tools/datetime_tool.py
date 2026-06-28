@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 from saladbox.tools.base import BaseTool
 
@@ -105,15 +104,15 @@ class DateTimeTool(BaseTool):
     async def execute(
         self,
         action: str,
-        timezone: Optional[str] = None,
-        datetime_str: Optional[str] = None,
-        from_tz: Optional[str] = None,
-        to_tz: Optional[str] = None,
+        timezone: str | None = None,
+        datetime_str: str | None = None,
+        from_tz: str | None = None,
+        to_tz: str | None = None,
         days: int = 0,
         hours: int = 0,
         minutes: int = 0,
-        format_str: Optional[str] = None,
-        target_datetime: Optional[str] = None,
+        format_str: str | None = None,
+        target_datetime: str | None = None,
     ) -> str:
         try:
             if action == "now":
@@ -133,9 +132,9 @@ class DateTimeTool(BaseTool):
             else:
                 return f"Unknown action: {action}"
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
-    def _get_now(self, tz_name: Optional[str]) -> str:
+    def _get_now(self, tz_name: str | None) -> str:
         if tz_name:
             tz_name = self.COMMON_TIMEZONES.get(tz_name.lower(), tz_name)
             try:
@@ -144,10 +143,10 @@ class DateTimeTool(BaseTool):
                 return (
                     f"Current time in {tz_name}: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}"
                 )
-            except Exception as e:
+            except Exception:
                 return f"Error: Unknown timezone '{tz_name}'"
 
-        utc_now = datetime.now(timezone.utc)
+        utc_now = datetime.now(UTC)
         local_now = datetime.now()
         return (
             f"UTC: {utc_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -155,7 +154,7 @@ class DateTimeTool(BaseTool):
         )
 
     def _convert(
-        self, dt_str: Optional[str], from_tz: Optional[str], to_tz: Optional[str]
+        self, dt_str: str | None, from_tz: str | None, to_tz: str | None
     ) -> str:
         if not dt_str or not to_tz:
             return "Error: datetime_str and to_tz are required for conversion"
@@ -171,7 +170,7 @@ class DateTimeTool(BaseTool):
             from_tz = self.COMMON_TIMEZONES.get(from_tz.lower(), from_tz)
             dt = dt.replace(tzinfo=ZoneInfo(from_tz))
         elif dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
 
         target_tz = ZoneInfo(to_tz)
         converted = dt.astimezone(target_tz)
@@ -180,8 +179,8 @@ class DateTimeTool(BaseTool):
 
     def _add(
         self,
-        dt_str: Optional[str],
-        tz: Optional[str],
+        dt_str: str | None,
+        tz: str | None,
         days: int,
         hours: int,
         minutes: int,
@@ -204,8 +203,8 @@ class DateTimeTool(BaseTool):
 
     def _subtract(
         self,
-        dt_str: Optional[str],
-        tz: Optional[str],
+        dt_str: str | None,
+        tz: str | None,
         days: int,
         hours: int,
         minutes: int,
@@ -223,7 +222,7 @@ class DateTimeTool(BaseTool):
 
         return f"{dt.strftime('%Y-%m-%d %H:%M:%S')} - {days}d {hours}h {minutes}m = {result.strftime('%Y-%m-%d %H:%M:%S')}"
 
-    def _diff(self, dt1_str: Optional[str], dt2_str: Optional[str]) -> str:
+    def _diff(self, dt1_str: str | None, dt2_str: str | None) -> str:
         if not dt1_str or not dt2_str:
             return "Error: Two datetimes required for difference calculation"
 
@@ -246,7 +245,7 @@ class DateTimeTool(BaseTool):
         return f"Difference: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
 
     def _format(
-        self, dt_str: Optional[str], tz: Optional[str], fmt: Optional[str]
+        self, dt_str: str | None, tz: str | None, fmt: str | None
     ) -> str:
         if not dt_str:
             return "Error: datetime_str required for formatting"
@@ -263,7 +262,7 @@ class DateTimeTool(BaseTool):
         fmt = fmt or "%Y-%m-%d %H:%M:%S"
         return f"Formatted: {dt.strftime(fmt)}"
 
-    def _parse(self, dt_str: Optional[str]) -> str:
+    def _parse(self, dt_str: str | None) -> str:
         if not dt_str:
             return "Error: datetime_str required for parsing"
 

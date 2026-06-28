@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import secrets
 import string
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -585,7 +584,7 @@ class PasswordTool(BaseTool):
     async def execute(
         self,
         action: str,
-        length: Optional[int] = None,
+        length: int | None = None,
         include_uppercase: bool = True,
         include_lowercase: bool = True,
         include_numbers: bool = True,
@@ -637,7 +636,7 @@ class PasswordTool(BaseTool):
                 return f"Generated {len(results)} {action}s:\n" + "\n".join(results)
 
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     def _generate_password(
         self, length: int, upper: bool, lower: bool, numbers: bool, symbols: bool

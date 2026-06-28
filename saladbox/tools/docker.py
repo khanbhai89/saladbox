@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Optional, List
 
 from saladbox.tools.base import BaseTool
 
@@ -75,10 +74,10 @@ class DockerTool(BaseTool):
     async def execute(
         self,
         action: str,
-        container: Optional[str] = None,
-        image: Optional[str] = None,
-        command: Optional[str] = None,
-        options: Optional[str] = None,
+        container: str | None = None,
+        image: str | None = None,
+        command: str | None = None,
+        options: str | None = None,
         lines: int = 50,
     ) -> str:
         try:
@@ -180,9 +179,9 @@ class DockerTool(BaseTool):
         except FileNotFoundError:
             return "Error: Docker CLI not found. Please install Docker."
         except Exception as e:
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
-    async def _run_docker(self, args: List[str]) -> str:
+    async def _run_docker(self, args: list[str]) -> str:
         proc = await asyncio.create_subprocess_exec(
             "docker",
             *args,

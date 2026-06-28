@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Optional
 
 from saladbox.tools.base import BaseTool
 
@@ -73,7 +72,7 @@ class JsonYamlTool(BaseTool):
         self,
         action: str,
         data: str,
-        path: Optional[str] = None,
+        path: str | None = None,
         format: str = "json",
         indent: int = 2,
     ) -> str:
@@ -114,9 +113,9 @@ class JsonYamlTool(BaseTool):
 
             return json.dumps(parsed, indent=2, ensure_ascii=False)
         except json.JSONDecodeError as e:
-            return f"JSON parse error: {str(e)}"
+            return f"JSON parse error: {e!s}"
         except yaml.YAMLError as e:
-            return f"YAML parse error: {str(e)}"
+            return f"YAML parse error: {e!s}"
 
     def _format(self, data: str, indent: int) -> str:
         data = data.strip()
@@ -132,7 +131,7 @@ class JsonYamlTool(BaseTool):
                 parsed = yaml.safe_load(data)
                 return yaml.dump(parsed, default_flow_style=False, indent=indent)
         except Exception as e:
-            return f"Format error: {str(e)}"
+            return f"Format error: {e!s}"
 
     def _validate(self, data: str) -> str:
         data = data.strip()
@@ -148,9 +147,9 @@ class JsonYamlTool(BaseTool):
                 parsed = yaml.safe_load(data)
                 return f"Valid YAML. Type: {type(parsed).__name__}"
         except json.JSONDecodeError as e:
-            return f"Invalid JSON: {str(e)}"
+            return f"Invalid JSON: {e!s}"
         except yaml.YAMLError as e:
-            return f"Invalid YAML: {str(e)}"
+            return f"Invalid YAML: {e!s}"
 
     def _convert(self, data: str, target_format: str, indent: int) -> str:
         data = data.strip()
@@ -171,7 +170,7 @@ class JsonYamlTool(BaseTool):
                     return "Error: YAML support requires 'pyyaml' package"
                 return yaml.dump(parsed, default_flow_style=False, indent=indent)
         except Exception as e:
-            return f"Conversion error: {str(e)}"
+            return f"Conversion error: {e!s}"
 
     def _extract(self, data: str, path: str) -> str:
         data = data.strip()
@@ -206,9 +205,9 @@ class JsonYamlTool(BaseTool):
                 return json.dumps(result, indent=2, ensure_ascii=False)
             return str(result)
         except Exception as e:
-            return f"Extract error: {str(e)}"
+            return f"Extract error: {e!s}"
 
-    def _keys(self, data: str, path: Optional[str]) -> str:
+    def _keys(self, data: str, path: str | None) -> str:
         data = data.strip()
         fmt = self._detect_format(data)
 
@@ -225,10 +224,7 @@ class JsonYamlTool(BaseTool):
                 path_parts = re.split(r"\.|\[|\]", path)
                 path_parts = [p for p in path_parts if p]
                 for part in path_parts:
-                    if part.isdigit():
-                        target = target[int(part)]
-                    else:
-                        target = target[part]
+                    target = target[int(part)] if part.isdigit() else target[part]
 
             if isinstance(target, dict):
                 keys = list(target.keys())
@@ -238,4 +234,4 @@ class JsonYamlTool(BaseTool):
             else:
                 return f"Scalar value: {type(target).__name__}"
         except Exception as e:
-            return f"Keys error: {str(e)}"
+            return f"Keys error: {e!s}"

@@ -10,8 +10,8 @@ Use this tool when the user wants to:
 
 from __future__ import annotations
 
-import webbrowser
 import logging
+import webbrowser
 from urllib.parse import quote_plus
 
 from saladbox.tools.base import BaseTool

@@ -1,13 +1,12 @@
 """Comprehensive tests for tool calling functionality."""
 
-import asyncio
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
-from saladbox.core.tool_filter import ToolFilter, TOOL_KEYWORDS, RECOGNITION_PATTERNS
+import pytest
+
+from saladbox.core.tool_filter import TOOL_KEYWORDS, ToolFilter
 from saladbox.core.tool_registry import ToolRegistry
-from saladbox.core.types import Message, Role, ToolCall, ToolResult
-from saladbox.tools import get_enabled_tools, TOOL_MAP
+from saladbox.tools import TOOL_MAP, get_enabled_tools
 
 
 class TestToolFilter:
@@ -103,7 +102,7 @@ class TestToolFilter:
 
     def test_get_best_tool_no_match(self, tool_filter, all_tools):
         """Test get_best_tool with no matching keywords."""
-        result = tool_filter.get_best_tool("Hello how are you?", all_tools)
+        tool_filter.get_best_tool("Hello how are you?", all_tools)
         # Should return None or low-score tool
         # This is a casual greeting with no tool intent
 
@@ -137,7 +136,7 @@ class TestToolFilter:
     def test_all_tools_have_keywords(self):
         """Test that all registered tools have keyword definitions."""
         missing = []
-        for tool_name in TOOL_MAP.keys():
+        for tool_name in TOOL_MAP:
             if tool_name not in TOOL_KEYWORDS:
                 missing.append(tool_name)
 

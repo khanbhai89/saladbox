@@ -93,8 +93,8 @@ class SystemMonitorTool(BaseTool):
         lines = [
             "## CPU",
             "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "| Metric | Value |",
+            "|--------|-------|",
             f"| Usage | {bar} **{percent}%** |",
             f"| Cores | {count} |",
         ]

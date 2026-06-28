@@ -11,10 +11,12 @@ from __future__ import annotations
 import logging
 import os
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from saladbox.core.types import ToolResult
-from saladbox.tools.base import BaseTool
+
+if TYPE_CHECKING:
+    from saladbox.tools.base import BaseTool
 
 # MCP tools are dynamically discovered — we import the class for isinstance checks
 try:

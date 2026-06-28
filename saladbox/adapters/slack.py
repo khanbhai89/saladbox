@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import TYPE_CHECKING
 
 from saladbox.adapters.base import BaseAdapter
-from saladbox.config import AppConfig
-from saladbox.core.chat_store import ChatStore
-from saladbox.core.engine import AgentEngine
 from saladbox.core.types import ConversationContext
+
+if TYPE_CHECKING:
+    from saladbox.config import AppConfig
+    from saladbox.core.chat_store import ChatStore
+    from saladbox.core.engine import AgentEngine
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +41,8 @@ class SlackAdapter(BaseAdapter):
                 "Enable Socket Mode in your Slack app settings."
             )
 
-        from slack_bolt.async_app import AsyncApp
         from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
+        from slack_bolt.async_app import AsyncApp
 
         self._app = AsyncApp(token=bot_token)
         self._handler = AsyncSocketModeHandler(self._app, app_token)
