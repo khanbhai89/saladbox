@@ -1,6 +1,6 @@
 [project]
 name = "saladbox"
-version = "0.3.1"
+version = "0.3.2"
 description = "Local AI assistant with Ollama, browser automation, MCP servers, and messaging integrations"
 readme = "README.md"
 license = "MIT"
