@@ -40,19 +40,25 @@
 
 ## Architecture Overview
 
+```mermaid
+graph LR
+    subgraph FE [Electron Front-end]
+        UI[UI & HTTP Client<br/>renderer.js]
+    end
+
+    subgraph BE [Python Backend]
+        API[HTTP Adapter<br/>saladbox.adapters.http]
+        Engine[Agent Engine<br/>core/engine.py]
+        Registry[Tool Registry<br/>core/tool_registry.py]
+        Adapters[External Adapters<br/>Telegram, Slack, CLI]
+    end
+
+    UI <-->|HTTP localhost:8765| API
+    API <--> Engine
+    Engine <--> Registry
+    Engine <--> Adapters
 ```
-┌─────────────────────┐      ┌─────────────────────┐
-│   Electron Front‑end│      │   Python Backend    │
-│  (renderer.js)      │◀────▶│  core/engine.py     │
-│  UI + HTTP API      │      │  adapters/…         │
-└─────────────────────┘      └─────────────────────┘
-          ▲                           ▲
-          │ HTTP (localhost:8765)     │
-          │                           │
-          ▼                           ▼
-   HTTPAdapter (core)          Tool Registry
-   (saladbox.adapters.http)   (browser, reminder, …)
-```
+
 
 - **Electron** serves a static UI and forwards chat requests to the Python backend over a local HTTP server (`localhost:8765`).
 - **Python backend** hosts the **AgentEngine** which drives the LLM, manages memory, registers tools, and orchestrates scheduled jobs via `APScheduler`.
