@@ -134,6 +134,19 @@ TOOL_KEYWORDS = {
         "secondary": ["path", "ls", "mkdir", "delete file"],
         "weight": 1.0,
     },
+    "file_search": {
+        "primary": [
+            "index directory",
+            "index files",
+            "full-text search",
+            "grep content",
+            "search text in files",
+            "search word in directory",
+            "find phrase in file",
+        ],
+        "secondary": ["grep", "index", "search content", "fts"],
+        "weight": 2.0,
+    },
     "system_monitor": {
         "primary": [
             "system resources",

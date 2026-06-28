@@ -128,7 +128,7 @@ def test_tool_filtering():
     all_schemas = registry.get_schemas()
 
     runner.test(
-        "Total tools registered", len(all_schemas) == 33, f"Got {len(all_schemas)}"
+        "Total tools registered", len(all_schemas) == 34, f"Got {len(all_schemas)}"
     )
 
     query = "Check my system resources"
