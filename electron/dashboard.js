@@ -96,9 +96,42 @@ async function searchMessages(query, platform = null) {
 }
 
 // ── Time Formatting ─────────────────────────────────────────
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  let clean = dateStr;
+  // Truncate sub-millisecond precision to 3 digits (e.g., .123456 -> .123)
+  if (clean.includes('.')) {
+    clean = clean.replace(/\.(\d{3})\d+/, '.$1');
+  }
+  
+  if (clean.endsWith('Z') || /[-+]\d{2}:?\d{2}$/.test(clean)) {
+    const d = new Date(clean);
+    if (!isNaN(d.getTime())) return d;
+  }
+  
+  clean = clean.replace(' ', 'T');
+  if (!clean.includes('Z') && !clean.includes('+') && !clean.includes('-')) {
+    clean += 'Z';
+  }
+  const d = new Date(clean);
+  return isNaN(d.getTime()) ? new Date(dateStr) : d;
+}
+
+function stripMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/^#+\s+/gm, '')
+    .replace(/[\*_~`\-]/g, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
+  const date = parseDate(dateStr);
+  if (!date || isNaN(date.getTime())) return '';
   const now = new Date();
   const seconds = Math.floor((now - date) / 1000);
 
@@ -110,8 +143,8 @@ function timeAgo(dateStr) {
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
+  const date = parseDate(dateStr);
+  if (!date || isNaN(date.getTime())) return '';
   return date.toLocaleString('en-US', {
     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
@@ -328,11 +361,12 @@ function renderConversationsList(conversations, containerId) {
     const platformClass = getPlatformClass(platform);
     const icon = PLATFORM_ICONS[platform] || '?';
     const title = conv.title || conv.id || 'Untitled';
-    const preview = conv.last_assistant_message
-      ? conv.last_assistant_message.substring(0, 120)
+    const rawPreview = conv.last_assistant_message
+      ? conv.last_assistant_message
       : conv.last_user_message
-        ? conv.last_user_message.substring(0, 120)
+        ? conv.last_user_message
         : 'No messages';
+    const preview = stripMarkdown(rawPreview).substring(0, 120);
     const time = timeAgo(conv.updated_at);
     const count = conv.message_count || 0;
 

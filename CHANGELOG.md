@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Modernize UI/UX design with Google Fonts and glassmorphism, fix Invalid Date and markdown preview bugs (2026-06-29)
 - Add system_control, network, and local_db tools (2026-06-28)
 - Add local file search and full-text indexing tool using SQLite FTS5 (2026-06-28)
 - Fix run_cmd and get_changelog error checking in release.py (2026-06-28)

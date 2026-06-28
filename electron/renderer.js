@@ -1289,6 +1289,27 @@ async function loadTools() {
   }
 }
 
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  let clean = dateStr;
+  // Truncate sub-millisecond precision to 3 digits (e.g., .123456 -> .123)
+  if (clean.includes('.')) {
+    clean = clean.replace(/\.(\d{3})\d+/, '.$1');
+  }
+  
+  if (clean.endsWith('Z') || /[-+]\d{2}:?\d{2}$/.test(clean)) {
+    const d = new Date(clean);
+    if (!isNaN(d.getTime())) return d;
+  }
+  
+  clean = clean.replace(' ', 'T');
+  if (!clean.includes('Z') && !clean.includes('+') && !clean.includes('-')) {
+    clean += 'Z';
+  }
+  const d = new Date(clean);
+  return isNaN(d.getTime()) ? new Date(dateStr) : d;
+}
+
 async function loadConversations() {
   try {
     const data = await window.saladbox.getConversations(20, 0);
@@ -1327,7 +1348,13 @@ async function loadConversations() {
       
       // Format date/time using updated_at
       const rawDate = conv.updated_at;
-      const date = rawDate ? new Date(rawDate.endsWith('Z') ? rawDate : rawDate + 'Z').toLocaleDateString() : '';
+      let date = '';
+      if (rawDate) {
+        const parsed = parseDate(rawDate);
+        if (parsed && !isNaN(parsed.getTime())) {
+          date = parsed.toLocaleDateString();
+        }
+      }
       
       item.innerHTML = `
         <div class="conv-title">${escapeHtml(title)}</div>
