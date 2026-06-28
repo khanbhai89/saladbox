@@ -1,0 +1,27 @@
+name: crypto
+description: Get cryptocurrency prices and market data
+slash_command: /crypto
+model: fast
+triggers:
+  - /crypto
+  - /bitcoin
+  - /btc
+  - /price
+prompt: |
+  Get current cryptocurrency prices and market information.
+  
+  Use the finance tool with:
+  - crypto: Get price for specific coin (bitcoin, ethereum, etc.)
+  - crypto_list: Top 15 coins by market cap
+  - trending: Currently trending coins
+  - exchange_rate: Currency exchange rates
+  
+  Common symbols: btc, eth, sol, ada, xrp, doge, dot, link, ltc
+  
+  Provide clear price information with:
+  - Current price
+  - 24h change
+  - Market cap
+  - Volume
+  
+  Remind user that crypto prices are volatile.

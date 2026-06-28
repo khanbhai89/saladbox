@@ -1,0 +1,86 @@
+[project]
+name = "saladbox"
+version = "0.3.0"
+description = "Local AI assistant with Ollama, browser automation, MCP servers, and messaging integrations"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+keywords = ["ai", "assistant", "ollama", "llm", "tool-calling", "mcp", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = [
+    "ollama>=0.6",
+    "openai>=2.0",
+    "playwright>=1.58",
+    "slack-bolt>=1.27",
+    "aiohttp>=3.13",
+    "python-telegram-bot>=22.0",
+    "apscheduler>=3.10,<4",
+    "psutil>=6.0",
+    "RestrictedPython>=7.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "pydantic>=2.13",
+    "pydantic-settings>=2.7",
+    "mflux>=0.16",
+    "faster-whisper>=1.1",
+    "pydub>=0.25",
+    "httpx>=0.28",
+    "tenacity>=9.1",
+    "tiktoken>=0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-mock>=3.14",
+    "ruff>=0.9",
+    "mypy>=1.14",
+]
+
+[project.scripts]
+saladbox = "saladbox.__main__:main"
+saladbox-setup = "saladbox.setup_wizard:_cli_main"
+
+[tool.setuptools.packages.find]
+include = ["saladbox*"]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+    "ASYNC",# flake8-async
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+

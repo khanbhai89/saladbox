@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saladbox</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Setup Wizard (shown on first run) -->
+    <div id="setup-wizard" class="setup-wizard hidden">
+      <div class="setup-content">
+        <div class="setup-header">
+          <div class="setup-logo">S</div>
+          <h1>Welcome to Saladbox</h1>
+          <p>Let's set up your local AI assistant</p>
+        </div>
+        
+        <div class="setup-steps">
+          <!-- Step 1: Provider -->
+          <div class="setup-step active" data-step="1">
+            <h2>Choose AI Provider</h2>
+            <div class="setup-options">
+              <div class="setup-option" data-provider="ollama">
+                <div class="option-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <path d="M9 9h6M9 12h6M9 15h4"/>
+                  </svg>
+                </div>
+                <div class="option-info">
+                  <h3>Ollama (Local)</h3>
+                  <p>Run models locally on your machine. Free and private.</p>
+                </div>
+              </div>
+              <div class="setup-option" data-provider="openrouter">
+                <div class="option-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <div class="option-info">
+                  <h3>OpenRouter (Cloud)</h3>
+                  <p>Access Claude, GPT-4, and more via API.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ollama-config" class="provider-config hidden">
+              <h3>Ollama Models</h3>
+              <div class="setup-field">
+                <label>Default Model</label>
+                <select id="setup-ollama-default">
+                  <option value="">Loading models...</option>
+                </select>
+              </div>
+              <div class="setup-field">
+                <label>Code Model</label>
+                <select id="setup-ollama-code">
+                  <option value="">Same as default</option>
+                </select>
+              </div>
+            </div>
+            
+            <div id="openrouter-config" class="provider-config hidden">
+              <div class="setup-field">
+                <label>OpenRouter API Key</label>
+                <input type="password" id="setup-openrouter-key" placeholder="sk-or-...">
+                <span class="field-hint">Get your key at <a href="#" onclick="require('electron').shell.openExternal('https://openrouter.ai/keys')">openrouter.ai/keys</a></span>
+              </div>
+              <div class="setup-field">
+                <label>Default Model</label>
+                <select id="setup-openrouter-default">
+                  <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                  <option value="openai/gpt-4o">GPT-4o</option>
+                  <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                  <option value="google/gemini-pro-1.5">Gemini Pro 1.5</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setup-actions">
+              <button class="btn-primary" id="setup-next-1" disabled>Continue</button>
+            </div>
+          </div>
+          
+          <!-- Step 2: Integrations -->
+          <div class="setup-step" data-step="2">
+            <h2>Integrations (Optional)</h2>
+            <p class="step-subtitle">Connect messaging platforms to use Saladbox anywhere</p>
+            
+            <div class="integration-option">
+              <div class="integration-header">
+                <label class="toggle">
+                  <input type="checkbox" id="setup-telegram-toggle">
+                  <span class="slider"></span>
+                </label>
+                <span class="integration-name">Telegram Bot</span>
+              </div>
+              <div class="integration-config hidden" id="telegram-config">
+                <input type="password" id="setup-telegram-token" placeholder="Bot token from @BotFather">
+              </div>
+            </div>
+            
+            <div class="integration-option">
+              <div class="integration-header">
+                <label class="toggle">
+                  <input type="checkbox" id="setup-slack-toggle">
+                  <span class="slider"></span>
+                </label>
+                <span class="integration-name">Slack Bot</span>
+              </div>
+              <div class="integration-config hidden" id="slack-config">
+                <input type="password" id="setup-slack-bot-token" placeholder="Bot token (xoxb-...)">
+                <input type="password" id="setup-slack-app-token" placeholder="App token (xapp-...)">
+              </div>
+            </div>
+            
+            <div class="setup-actions">
+              <button class="btn-secondary" id="setup-back-2">Back</button>
+              <button class="btn-primary" id="setup-next-2">Continue</button>
+            </div>
+          </div>
+          
+          <!-- Step 3: MCP Servers -->
+          <div class="setup-step" data-step="3">
+            <h2>MCP Servers (Optional)</h2>
+            <p class="step-subtitle">Add external tools via Model Context Protocol</p>
+            
+            <div class="mcp-quick-add">
+              <h4>Quick Add Popular Servers</h4>
+              <div class="mcp-presets">
+                <button class="mcp-preset-btn" data-mcp="github">
+                  <span>GitHub</span>
+                  <small>Repo operations</small>
+                </button>
+                <button class="mcp-preset-btn" data-mcp="brave-search">
+                  <span>Brave Search</span>
+                  <small>Web search</small>
+                </button>
+                <button class="mcp-preset-btn" data-mcp="filesystem">
+                  <span>Filesystem</span>
+                  <small>File access</small>
+                </button>
+                <button class="mcp-preset-btn" data-mcp="memory">
+                  <span>Memory</span>
+                  <small>Persistent memory</small>
+                </button>
+                <button class="mcp-preset-btn" data-mcp="opencode">
+                  <span>OpenCode</span>
+                  <small>AI coding agent</small>
+                </button>
+              </div>
+            </div>
+            
+            <div id="setup-mcp-list" class="setup-mcp-list"></div>
+            
+            <div class="mcp-custom-add">
+              <h4>Add Custom Server</h4>
+              <div class="mcp-form">
+                <input type="text" id="mcp-name" placeholder="Server name">
+                <input type="text" id="mcp-command" placeholder="Command (e.g., npx, uvx, python3)">
+                <input type="text" id="mcp-args" placeholder="Arguments (comma-separated)">
+                <button class="btn-secondary" id="setup-add-mcp">Add Server</button>
+              </div>
+            </div>
+            
+            <div class="setup-actions">
+              <button class="btn-secondary" id="setup-back-3">Back</button>
+              <button class="btn-primary" id="setup-finish">Finish Setup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-resize-handle"></div>
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><img src="assets/icon.png" alt="S" width="34" height="34" style="border-radius:10px"></div>
+          <span>Saladbox</span>
+        </div>
+        <button id="new-chat-btn" class="icon-btn" title="New Chat (Ctrl+N)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="sidebar-content">
+          <div class="section-title collapsible" data-section="conversations">
+            <span>Conversations</span>
+            <button class="btn-icon-small collapse-btn" title="Collapse">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <button class="btn-icon-small" id="merge-conv-btn" title="Merge conversations">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 3v12"></path>
+                <circle cx="18" cy="6" r="3"></circle>
+                <circle cx="6" cy="18" r="3"></circle>
+                <path d="M18 9a9 9 0 0 1-9 9"></path>
+              </svg>
+            </button>
+            <button class="btn-icon-small" id="search-conv-btn" title="Search (Ctrl+F)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="conversations-section">
+            <div class="conversations" id="conversations"></div>
+          </div>
+          <div class="section-title collapsible" data-section="mcp">
+            <span>MCP Servers</span>
+            <span class="mcp-count" id="mcp-count">0</span>
+            <button class="btn-icon-small collapse-btn" title="Collapse">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+          <div class="mcp-section">
+            <div class="mcp-status-list" id="mcp-status-list"></div>
+          </div>
+        </div>
+      
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="footer-btn" title="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>Theme</span>
+        </button>
+        <button id="dashboard-btn" class="footer-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button id="settings-btn" class="footer-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          </svg>
+          <span>Settings</span>
+        </button>
+        <button id="notification-btn" class="footer-btn" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span>Alerts</span>
+          <span id="notification-badge" class="badge hidden">0</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="main">
+      <div class="chat-container">
+        <div class="messages" id="messages">
+          <div class="welcome">
+            <div class="welcome-icon">
+              <img src="assets/icon.png" alt="Saladbox" width="56" height="56" style="border-radius:14px">
+            </div>
+            <h2>How can I help you today?</h2>
+            <p>I'm your local AI assistant with 30+ tools for system control, web search, weather, crypto, and more.</p>
+            <div class="suggestions">
+              <button class="suggestion-card" data-message="Check my system resources">
+                <div class="suggestion-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                </div>
+                <span>System resources</span>
+              </button>
+              <button class="suggestion-card" data-message="What's the weather?">
+                <div class="suggestion-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                  </svg>
+                </div>
+                <span>Weather</span>
+              </button>
+              <button class="suggestion-card" data-message="What's Bitcoin price?">
+                <div class="suggestion-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <span>Crypto prices</span>
+              </button>
+              <button class="suggestion-card" data-message="Generate a secure password">
+                <div class="suggestion-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </div>
+                <span>Password</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="input-area">
+          <div class="model-switcher" id="model-switcher">
+            <select id="quick-model-select" title="Switch model">
+              <option value="">Default</option>
+            </select>
+          </div>
+          <div class="input-toolbar">
+            <button class="toolbar-btn" id="voice-input-btn" title="Voice input">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+            </button>
+            <button class="toolbar-btn" id="attach-file-btn" title="Attach file">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+              </svg>
+            </button>
+            <div class="md-toolbar-separator"></div>
+            <button class="toolbar-btn md-btn" data-md="bold" title="Bold (Ctrl+B)">
+              <strong>B</strong>
+            </button>
+            <button class="toolbar-btn md-btn" data-md="italic" title="Italic (Ctrl+I)">
+              <em>I</em>
+            </button>
+            <button class="toolbar-btn md-btn" data-md="code" title="Code">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </button>
+            <button class="toolbar-btn md-btn" data-md="link" title="Link">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </button>
+            <button class="toolbar-btn md-btn" data-md="list" title="Bullet list">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+            <div class="md-toolbar-separator"></div>
+            <button class="toolbar-btn" id="emoji-btn" title="Emoji">
+              😀
+            </button>
+          </div>
+          <div class="input-container">
+            <textarea 
+              id="message-input" 
+              placeholder="Message Saladbox..." 
+              rows="1"
+              autofocus
+              autocomplete="off"
+            ></textarea>
+            <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+            <button id="send-btn" class="send-btn" title="Send">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          <div class="input-hint">
+            <span id="status">
+              <span class="status-indicator" id="connection-status"></span>
+              <span id="status-text">Ready</span>
+              <span class="context-indicator" id="context-indicator"></span>
+            </span>
+            <span class="input-hint-right">
+              <span id="token-count"></span>
+              <span id="word-count"></span>
+              <span>Enter to send, Shift+Enter for new line</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Settings Panel -->
+    <div id="settings-overlay" class="settings-overlay hidden"></div>
+    <div id="settings-panel" class="settings-panel hidden">
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button id="close-settings" class="icon-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="general">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          General
+        </button>
+        <button class="settings-tab" data-tab="chat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat
+        </button>
+        <button class="settings-tab" data-tab="connections">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Connections
+        </button>
+        <button class="settings-tab" data-tab="image-gen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Image Gen
+        </button>
+        <button class="settings-tab" data-tab="app">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          App
+        </button>
+      </div>
+
+      <div class="settings-content">
+        <!-- ═══ GENERAL TAB ═══ -->
+        <div class="settings-tab-content active" data-tab="general">
+          <div class="settings-section">
+            <h3>AI Provider</h3>
+            <div class="setting-item">
+              <label>Provider</label>
+              <select id="provider-select">
+                <option value="ollama">Ollama (Local)</option>
+                <option value="openrouter">OpenRouter (Cloud)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-section" id="models-section">
+            <h3>Models</h3>
+            <div class="setting-item">
+              <label>Default Model</label>
+              <select id="default-model-select">
+                <option value="">Loading...</option>
+              </select>
+              <span class="setting-hint">Used for general tasks</span>
+            </div>
+            <div class="setting-item">
+              <label>Code Model</label>
+              <select id="code-model-select">
+                <option value="">Loading...</option>
+              </select>
+              <span class="setting-hint">Used for coding tasks</span>
+            </div>
+            <div class="setting-item">
+              <label>Fast Model</label>
+              <select id="fast-model-select">
+                <option value="">Loading...</option>
+              </select>
+              <span class="setting-hint">Used for quick responses</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Custom Model</h3>
+            <div class="setting-item setting-row">
+              <label>Use Custom Model</label>
+              <label class="toggle">
+                <input type="checkbox" id="custom-model-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item" id="custom-model-input" style="display: none;">
+              <label>Model Name</label>
+              <input type="text" id="custom-model-name" placeholder="e.g., llama3:latest">
+              <span class="setting-hint">Enter any model name available in your provider</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>HuggingFace</h3>
+            <div class="setting-item">
+              <label>HF Token</label>
+              <div class="input-with-action">
+                <input type="password" id="hf-token-input" placeholder="hf_...">
+                <button class="btn-icon-small" id="hf-token-toggle" title="Show/hide token">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <span class="setting-hint">Required for gated models (FLUX, Llama, etc). Get yours at <a href="#" id="hf-link">huggingface.co/settings/tokens</a></span>
+            </div>
+            <div class="setting-item">
+              <button class="btn-secondary" id="hf-token-save-btn">Save Token</button>
+              <span class="setting-hint" id="hf-token-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ CHAT TAB ═══ -->
+        <div class="settings-tab-content" data-tab="chat">
+          <div class="settings-section">
+            <h3>System Prompt</h3>
+            <div class="setting-item">
+              <label>Custom Instructions</label>
+              <textarea id="system-prompt" rows="4" placeholder="You are a helpful AI assistant..."></textarea>
+              <span class="setting-hint">Add custom instructions for the AI</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Response</h3>
+            <div class="setting-item">
+              <label>Temperature</label>
+              <div class="range-row">
+                <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="0.7">
+                <span class="range-value" id="temperature-value">0.7</span>
+              </div>
+              <span class="setting-hint">Lower = more focused, Higher = more creative</span>
+            </div>
+            <div class="setting-item">
+              <label>Max Tokens</label>
+              <input type="number" id="max-tokens" value="4096" min="256" max="128000">
+              <span class="setting-hint">Maximum response length</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Prompt Templates</h3>
+            <p class="section-hint">Create reusable prompt templates</p>
+            <div id="prompt-templates-list" class="prompt-templates-list"></div>
+            <button class="btn-secondary" id="add-template-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Template
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ CONNECTIONS TAB ═══ -->
+        <div class="settings-tab-content" data-tab="connections">
+          <div class="settings-section">
+            <h3>MCP Servers</h3>
+            <p class="section-hint">Model Context Protocol servers add external tools</p>
+            <div id="mcp-servers-list" class="mcp-servers-list"></div>
+            <div class="mcp-presets-grid">
+              <button class="mcp-preset-btn" data-mcp="github">
+                <span>GitHub</span>
+              </button>
+              <button class="mcp-preset-btn" data-mcp="brave-search">
+                <span>Brave Search</span>
+              </button>
+              <button class="mcp-preset-btn" data-mcp="opencode">
+                <span>OpenCode</span>
+              </button>
+            </div>
+            <button class="btn-secondary" id="add-mcp-server-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add MCP Server
+            </button>
+          </div>
+
+          <div class="settings-section">
+            <h3>Built-in Tools</h3>
+            <div id="tools-list" class="tools-grid"></div>
+          </div>
+        </div>
+
+        <!-- ═══ IMAGE GEN TAB ═══ -->
+        <div class="settings-tab-content" data-tab="image-gen">
+          <div class="settings-section">
+            <h3>Backend</h3>
+            <div class="setting-item">
+              <label>Image Generation Engine</label>
+              <select id="image-gen-backend">
+                <option value="mflux">mflux (Local FLUX via MLX)</option>
+                <option value="drawthings">Draw Things (HTTP API)</option>
+              </select>
+              <span class="setting-hint">mflux runs locally on Apple Silicon. Draw Things requires the app running.</span>
+            </div>
+            <div class="setting-item">
+              <label>FLUX Model</label>
+              <select id="image-gen-model">
+                <option value="schnell">FLUX.1-schnell (Fast, 2-4 steps)</option>
+                <option value="dev">FLUX.1-dev (Quality, 20+ steps)</option>
+              </select>
+              <span class="setting-hint">schnell is fast (~13s), dev produces higher quality but is slower</span>
+            </div>
+            <div class="setting-item">
+              <label>Quantization</label>
+              <select id="image-gen-quantize">
+                <option value="4">4-bit (~6GB RAM)</option>
+                <option value="8">8-bit (~12GB RAM)</option>
+              </select>
+              <span class="setting-hint">Lower quantization = less RAM usage, slightly lower quality</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Defaults</h3>
+            <div class="setting-item">
+              <label>Default Width</label>
+              <input type="number" id="image-gen-width" value="1024" min="256" max="2048" step="16">
+              <span class="setting-hint">Must be a multiple of 16</span>
+            </div>
+            <div class="setting-item">
+              <label>Default Height</label>
+              <input type="number" id="image-gen-height" value="1024" min="256" max="2048" step="16">
+              <span class="setting-hint">Must be a multiple of 16</span>
+            </div>
+            <div class="setting-item">
+              <label>Default Steps</label>
+              <input type="number" id="image-gen-steps" value="2" min="1" max="50">
+              <span class="setting-hint">2-4 for schnell, 20-50 for dev</span>
+            </div>
+          </div>
+
+          <div class="settings-section" id="drawthings-section">
+            <h3>Draw Things</h3>
+            <div class="setting-item">
+              <label>API URL</label>
+              <input type="text" id="drawthings-url" value="http://localhost:7860" placeholder="http://localhost:7860">
+              <span class="setting-hint">Draw Things HTTP API address</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Status</h3>
+            <div class="about-info">
+              <div class="about-item">
+                <span>mflux</span>
+                <span id="mflux-status">Checking...</span>
+              </div>
+              <div class="about-item">
+                <span>Draw Things</span>
+                <span id="drawthings-status">Checking...</span>
+              </div>
+              <div class="about-item">
+                <span>HuggingFace</span>
+                <span id="hf-status">Checking...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ APP TAB ═══ -->
+        <div class="settings-tab-content" data-tab="app">
+          <div class="settings-section">
+            <h3>Preferences</h3>
+            <div class="setting-item setting-row">
+              <label>Spell Check</label>
+              <label class="toggle">
+                <input type="checkbox" id="spell-check-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item setting-row">
+              <label>Notification Sounds</label>
+              <label class="toggle">
+                <input type="checkbox" id="sound-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item setting-row">
+              <label>Start with System</label>
+              <label class="toggle">
+                <input type="checkbox" id="startup-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item setting-row">
+              <label>Minimize to Tray</label>
+              <label class="toggle">
+                <input type="checkbox" id="minimize-tray-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item setting-row">
+              <label>Debug Mode</label>
+              <label class="toggle">
+                <input type="checkbox" id="debug-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Voice &amp; Audio</h3>
+            <div class="setting-item setting-row">
+              <label>Text-to-Speech</label>
+              <label class="toggle">
+                <input type="checkbox" id="tts-enabled-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item setting-row">
+              <label>Auto-read Responses</label>
+              <label class="toggle">
+                <input type="checkbox" id="tts-auto-read-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label>Voice</label>
+              <select id="tts-voice-select">
+                <option value="">System Default</option>
+              </select>
+              <span class="setting-hint">Available voices depend on your OS</span>
+            </div>
+            <div class="setting-item">
+              <label>Speech Rate</label>
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="range" id="tts-rate-slider" min="0.5" max="2" step="0.1" value="1" style="flex:1">
+                <span id="tts-rate-value" style="min-width:30px;text-align:right;color:var(--text-secondary);font-size:13px">1.0</span>
+              </div>
+              <span class="setting-hint">0.5 = slow, 1.0 = normal, 2.0 = fast</span>
+            </div>
+            <div class="setting-item">
+              <label>Whisper Model</label>
+              <select id="whisper-model-select">
+                <option value="tiny">Tiny (~75MB, fastest)</option>
+                <option value="base" selected>Base (~150MB, balanced)</option>
+                <option value="small">Small (~500MB, accurate)</option>
+                <option value="medium">Medium (~1.5GB, high quality)</option>
+              </select>
+              <span class="setting-hint">Larger models are more accurate but slower. Downloaded on first use.</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Hotkey</h3>
+            <div class="setting-item">
+              <label>Global Hotkey</label>
+              <input type="text" id="global-hotkey" placeholder="Ctrl+Shift+S" value="Ctrl+Shift+S">
+              <span class="setting-hint">Quick access from anywhere</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcuts-list" id="shortcuts-list">
+              <div class="shortcut-item"><span>New Chat</span><kbd>Ctrl+N</kbd></div>
+              <div class="shortcut-item"><span>Search</span><kbd>Ctrl+F</kbd></div>
+              <div class="shortcut-item"><span>Settings</span><kbd>Ctrl+,</kbd></div>
+              <div class="shortcut-item"><span>Export</span><kbd>Ctrl+E</kbd></div>
+              <div class="shortcut-item"><span>Focus Input</span><kbd>Ctrl+L</kbd></div>
+              <div class="shortcut-item"><span>Help</span><kbd>Ctrl+?</kbd></div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Data</h3>
+            <div class="settings-data-actions">
+              <button class="btn-secondary" id="export-data-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+              </button>
+              <button class="btn-secondary" id="import-data-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import
+              </button>
+              <button class="btn-danger" id="clear-data-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>About</h3>
+            <div class="about-info">
+              <div class="about-item">
+                <span>Version</span>
+                <span id="app-version">-</span>
+              </div>
+              <div class="about-item">
+                <span>Backend</span>
+                <span id="backend-status">Connected</span>
+              </div>
+            </div>
+            <button class="btn-secondary btn-sm" id="view-logs-btn" style="margin-top: 10px;">View Logs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- MCP Server Modal -->
+    <div id="mcp-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add MCP Server</h3>
+          <button class="icon-btn" id="close-mcp-modal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Server Name</label>
+            <input type="text" id="mcp-server-name" placeholder="e.g., github, brave-search">
+          </div>
+          <div class="form-group">
+            <label>Command</label>
+            <input type="text" id="mcp-server-command" placeholder="e.g., npx, uvx, python3">
+          </div>
+          <div class="form-group">
+            <label>Arguments (comma-separated)</label>
+            <input type="text" id="mcp-server-args" placeholder="e.g., -y, @modelcontextprotocol/server-github">
+          </div>
+          <div class="form-group">
+            <label>Environment Variables (key=value, one per line)</label>
+            <textarea id="mcp-server-env" placeholder="GITHUB_TOKEN=ghp_xxx&#10;API_KEY=xxx" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancel-mcp-modal">Cancel</button>
+          <button class="btn-primary" id="save-mcp-server">Add Server</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.4/marked.min.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

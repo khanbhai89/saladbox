@@ -1,0 +1,45 @@
+name: deploy
+description: "Build, test, and prepare code for deployment"
+slash_command: /deploy
+model: code
+
+triggers:
+  - "deploy this"
+  - "prepare for deployment"
+  - "ship it"
+  - "release this"
+
+tools_required:
+  - code_editor
+  - git
+  - run_shell
+
+prompt: |
+  You are preparing code for deployment. Follow this checklist:
+
+  1. PRE-FLIGHT CHECKS
+     - Use code_editor 'project_info' to understand the project
+     - Check git status with code_editor 'diff' for uncommitted changes
+     - Read config files for any environment-specific settings
+
+  2. RUN TESTS
+     - Use code_editor 'run' with run_type 'test' to run the test suite
+     - If tests fail, report the failures and STOP — don't deploy broken code
+     - If no tests exist, warn the user
+
+  3. BUILD
+     - Use code_editor 'run' with run_type 'build' to build the project
+     - Check for build warnings or errors
+     - If build fails, report and STOP
+
+  4. GIT WORKFLOW
+     - Use git tool to stage, commit, and push changes
+     - Suggest creating a branch if on main/master
+     - Create a descriptive commit message
+
+  5. REPORT
+     - Summarize what was done
+     - List any warnings or issues found
+     - Confirm the deployment is ready
+
+  Always run tests before building. Never skip steps. If anything fails, stop and report.

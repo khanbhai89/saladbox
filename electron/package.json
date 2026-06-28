@@ -1,0 +1,66 @@
+{
+  "name": "saladbox-desktop",
+  "version": "0.1.0",
+  "description": "Saladbox Desktop - AI Assistant",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac dmg zip",
+    "build:win": "electron-builder --win nsis portable",
+    "build:linux": "electron-builder --linux AppImage deb"
+  },
+  "author": "Saladbox",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {},
+  "build": {
+    "appId": "com.saladbox.desktop",
+    "productName": "Saladbox",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/.cache/**"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "target": ["AppImage", "deb"]
+    },
+    "extraResources": [
+      {
+        "from": "../.venv",
+        "to": "python",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../saladbox",
+        "to": "saladbox",
+        "filter": ["**/*.py"]
+      },
+      {
+        "from": "../config.yaml",
+        "to": "config.yaml"
+      },
+      {
+        "from": "../.env",
+        "to": ".env"
+      }
+    ]
+  }
+}

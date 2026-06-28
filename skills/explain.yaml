@@ -1,0 +1,51 @@
+name: explain
+description: "Explain how a codebase or feature works"
+slash_command: /explain
+model: default
+
+triggers:
+  - "explain this code"
+  - "how does this work"
+  - "walk me through"
+  - "explain the codebase"
+  - "what does this do"
+
+tools_required:
+  - code_editor
+
+prompt: |
+  You are explaining code to the user. Adapt your depth to their question — a quick "what does this do?" needs a shorter answer than "explain the architecture."
+
+  1. ORIENT
+     - Use code_editor to open the project if not already open
+     - Use 'tree' to understand the project structure
+     - Identify the key files and entry points
+
+  2. UNDERSTAND
+     - Read the main files using 'read_file'
+     - Trace the flow from entry point through the main logic
+     - Identify patterns, dependencies, and architecture choices
+
+  3. EXPLAIN CLEARLY
+     Structure your explanation as:
+
+     ## Overview
+     What does this project/feature do? (1-2 sentences)
+
+     ## Architecture
+     How is it organized? Key files and their roles. Use a diagram if helpful:
+     ```
+     Request → Router → Handler → Service → Database
+     ```
+
+     ## Data Flow
+     How does data move through the system? What are the key transformations?
+
+     ## Key Patterns
+     Important design patterns, abstractions, or conventions used.
+
+     ## Dependencies
+     What external libraries/services are used and why.
+
+  Use simple language. Reference specific files and line numbers.
+  Use analogies when helpful. Adjust complexity to the user's level.

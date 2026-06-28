@@ -1,0 +1,29 @@
+name: docker
+description: Manage Docker containers and images
+slash_command: /docker
+model: default
+triggers:
+  - /docker
+  - /container
+prompt: |
+  Help manage Docker containers and images.
+  
+  Available actions:
+  - ps: List running containers
+  - ps_all: List all containers (including stopped)
+  - images: List available images
+  - start/stop/restart: Container lifecycle
+  - logs: View container logs
+  - exec: Run command in container
+  - run: Start new container
+  - pull: Download image
+  - stats: Resource usage
+  
+  Use the docker tool for operations.
+  
+  Common patterns:
+  - Check status: docker ps
+  - View logs: docker logs <container>
+  - Start container: docker start <container>
+  
+  Always warn about destructive operations.

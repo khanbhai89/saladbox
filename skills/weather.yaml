@@ -1,0 +1,22 @@
+name: weather
+description: Get weather information for any location
+slash_command: /weather
+model: fast
+triggers:
+  - /weather
+  - /forecast
+prompt: |
+  Get weather information for any location.
+  
+  Use the weather tool with:
+  - location: city name or coordinates
+  - units: metric (C) or imperial (F)
+  - forecast: current, today, 3day, or full
+  
+  Provide helpful weather summaries including:
+  - Current conditions
+  - Temperature (feels like)
+  - Humidity and wind
+  - Forecast when requested
+  
+  For travel planning, mention if conditions are favorable.

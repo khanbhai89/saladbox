@@ -1,0 +1,95 @@
+ollama:
+  host: http://localhost:11434
+  default_model: gemma4:latest
+  code_model: gemma4:latest
+  fast_model: qwen3:8b
+  fallback_model: qwen3:8b
+  vision_model: gemma4:latest
+  reasoning_model: gemma4:latest
+  timeout: 300
+  context_length: 40960
+  structured_output: true
+  keep_alive: 10m
+openrouter:
+  enabled: false
+  default_model: anthropic/claude-sonnet-4-5
+  code_model: anthropic/claude-sonnet-4-5
+  fast_model: openai/gpt-5.4-mini
+  fallback_model: openai/gpt-5.4-mini
+  reasoning_model: anthropic/claude-opus-4-7
+  base_url: https://openrouter.ai/api/v1
+  site_url: https://github.com/saladbox
+  app_name: saladbox
+slack:
+  enabled: false
+telegram:
+  enabled: true
+  allowed_user_ids: []
+agent:
+  max_tool_iterations: 15
+  parallel_tool_calls: true
+  enable_reasoning: true
+  enable_retry: true
+  max_retries: 2
+  language_enforcement: true
+  language_enforcement_threshold: 0.15
+  context_budget_ratio: 0.75
+  extended_thinking: true
+  thinking_budget_tokens: 8000
+  qwen3_fast_no_think: true
+tools:
+  shell: true
+  python_exec: true
+  browser: true
+  filesystem: true
+  system_monitor: true
+  scheduler: true
+  process_manager: true
+  code_editor: true
+  git: true
+  reminder: true
+  web_search: true
+  calculator: true
+  datetime_tool: true
+  clipboard: true
+  notes: true
+  weather: true
+  http_client: true
+  json_yaml: true
+  encoding: true
+  text: true
+  password: true
+  finance: true
+  timer: true
+  qrcode: true
+  translate: true
+  color: true
+  unit_converter: true
+  url: true
+  location: true
+  docker: true
+  screen_capture: true
+  open_url: true
+  image_gen: true
+image_gen:
+  enabled: true
+  backend: mflux
+  model: dev
+  quantize: 8
+  default_width: 1024
+  default_height: 1024
+  default_steps: 2
+  drawthings_url: http://localhost:7860
+huggingface: null
+whisper:
+  enabled: true
+  model_size: base
+  device: auto
+  compute_type: int8
+  language: ''
+mcp_servers: null
+skills:
+  enabled: true
+  directory: ''
+max_tool_iterations: 15
+log_level: INFO

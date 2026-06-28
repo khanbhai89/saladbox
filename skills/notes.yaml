@@ -1,0 +1,28 @@
+name: notes
+description: Store and retrieve notes for persistent memory
+slash_command: /note
+model: fast
+triggers:
+  - /note
+  - /remember
+  - /recall
+prompt: |
+  Store and retrieve notes to remember information across conversations.
+  
+  Actions:
+  - add: Save a new note with title, content, and optional tags
+  - get: Retrieve a specific note by title
+  - list: Show all notes (optionally filtered by tags)
+  - search: Find notes containing text
+  - delete: Remove a note
+  
+  Use the notes tool for persistent storage.
+  
+  Good use cases:
+  - User preferences
+  - Important facts to remember
+  - Frequently used information
+  - Project context
+  
+  Tags help organize notes. Use meaningful tags like:
+  - preference, config, project, reference

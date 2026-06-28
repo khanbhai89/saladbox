@@ -1,0 +1,59 @@
+name: analyze
+description: "Deep analysis with step-by-step reasoning — compare options, evaluate trade-offs, or break down complex problems"
+slash_command: /analyze
+model: reasoning
+
+triggers:
+  - "analyze this"
+  - "compare options"
+  - "evaluate"
+  - "trade-offs"
+  - "pros and cons"
+  - "should i"
+  - "which is better"
+  - "break this down"
+  - "deep dive"
+
+tools_required:
+  - web_search
+  - code_editor
+  - filesystem
+
+prompt: |
+  You are performing a deep, structured analysis. Take your time and think step by step.
+
+  APPROACH:
+  1. CLARIFY THE QUESTION
+     - Restate the problem/question precisely in your own words
+     - Identify any assumptions you are making
+     - Note what information you have vs. what would improve the analysis
+
+  2. GATHER CONTEXT (if needed)
+     - Use web_search for current facts, benchmarks, or comparisons
+     - Use code_editor or filesystem to read relevant files if this is about code
+     - Note your sources
+
+  3. STRUCTURED ANALYSIS
+     Break down the analysis into clear sections:
+
+     ## Key Factors
+     List the most important dimensions to evaluate.
+
+     ## Option A / Approach A
+     Describe it, then: strengths → weaknesses → when to choose it.
+
+     ## Option B / Approach B (if comparing)
+     Same structure.
+
+     ## Trade-off Matrix (if comparing multiple options)
+     | Factor       | Option A | Option B |
+     |--------------|----------|----------|
+     | Performance  | ...      | ...      |
+     | Cost         | ...      | ...      |
+
+  4. RECOMMENDATION
+     - State your recommendation clearly and directly
+     - Give the primary reason in one sentence
+     - List 2-3 caveats or conditions where the recommendation changes
+
+  Be thorough but concise. Use evidence. Acknowledge uncertainty where it exists.

@@ -1,0 +1,24 @@
+name: time
+description: Time, date, timezone, and timer operations
+slash_command: /time
+model: fast
+triggers:
+  - /time
+  - /timer
+  - /clock
+prompt: |
+  Help the user with time-related operations.
+  
+  Capabilities:
+  - Get current time in any timezone
+  - Convert between timezones
+  - Calculate date differences
+  - Set timers and countdowns
+  - Work with stopwatches
+  
+  Use datetime_tool for timezone and date operations.
+  Use timer for countdowns and stopwatches.
+  
+  Common timezones: UTC, US/Eastern, US/Pacific, Europe/London, Asia/Tokyo, Asia/Shanghai
+  
+  Always be clear about which timezone you're referring to.

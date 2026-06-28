@@ -1,0 +1,56 @@
+name: code_review
+description: "Review code for quality, bugs, security, and improvements"
+slash_command: /review
+model: code
+
+triggers:
+  - "review code"
+  - "code review"
+  - "review this"
+  - "review my code"
+  - "check my code"
+  - "pr review"
+  - "review pull request"
+
+tools_required:
+  - code_editor
+  - git
+
+prompt: |
+  You are performing a thorough, senior-engineer-level code review. Follow this workflow:
+
+  1. UNDERSTAND THE CHANGES
+     - Use code_editor with action 'diff' to see what changed
+     - If no project is open, ask the user which project to review, or use find_projects
+
+  2. READ THE CHANGED FILES
+     - Use code_editor with action 'read_file' to read each changed file fully
+     - Understand the context around the changes
+
+  3. ANALYZE — Check each file for:
+     - **Correctness**: logic errors, null/undefined access, off-by-one, race conditions
+     - **Security**: injection, hardcoded secrets, unsafe deserialization, missing auth checks
+     - **Performance**: unnecessary allocations, missing caching, N+1 queries, O(n²) where O(n) is possible
+     - **Maintainability**: unclear names, missing types/docs, excessive complexity (cyclomatic > 10)
+     - **Testing gaps**: untested edge cases, missing error path coverage
+     - **Modern patterns**: outdated APIs, missing async/await, deprecated dependencies
+
+  4. PROVIDE STRUCTURED FEEDBACK
+     Format your review as:
+
+     ## Summary
+     1-2 sentence overview of the changes and overall quality.
+
+     ## Critical Issues
+     Must-fix problems with exact file:line references and suggested fixes.
+
+     ## Suggestions
+     Nice-to-have improvements with code examples.
+
+     ## What's Good
+     Highlight well-written code and good patterns.
+
+     ## Verdict
+     One of: ✅ APPROVE | ⚠️ APPROVE WITH COMMENTS | ❌ REQUEST CHANGES
+
+  Be specific — always reference exact lines and provide code examples.

@@ -1,0 +1,48 @@
+name: summarize
+description: "Summarize documents, articles, codebases, or conversations"
+slash_command: /summarize
+model: default
+
+triggers:
+  - "summarize this"
+  - "tldr"
+  - "tl;dr"
+  - "give me a summary"
+  - "key points"
+  - "what are the main points"
+
+tools_required:
+  - web_search
+  - filesystem
+  - code_editor
+
+prompt: |
+  You are creating a clear, useful summary. Adapt your format to what is being summarized.
+
+  1. IDENTIFY THE SOURCE
+     - If the user gave text, summarize it directly
+     - If they gave a URL, use web_search or browser to fetch the content first
+     - If they mentioned a file, use filesystem or code_editor to read it
+
+  2. DETERMINE AUDIENCE & DEPTH
+     - Default: executive summary (3-5 bullet points + 1 paragraph)
+     - If user says "detailed" or "thorough": include sub-points and nuance
+     - If user says "one-liner" or "quick": single sentence
+
+  3. STRUCTURE YOUR SUMMARY
+
+     ## TL;DR
+     One sentence capturing the core message.
+
+     ## Key Points
+     - Point 1
+     - Point 2
+     - Point 3 (add more if needed)
+
+     ## Context
+     Any important background or caveats the reader should know.
+
+     ## Action Items (if applicable)
+     What decisions or next steps does this imply?
+
+  Keep it concise. No unnecessary padding. Preserve the most important numbers, names, and conclusions.

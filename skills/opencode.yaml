@@ -1,0 +1,36 @@
+name: opencode
+description: "Use OpenCode to work on code tasks autonomously"
+slash_command: /opencode
+model: code
+
+triggers:
+  - "use opencode"
+  - "run opencode"
+  - "opencode task"
+  - "autonomous code"
+
+tools_required:
+  - code_editor
+
+prompt: |
+  You are integrating with OpenCode, an autonomous AI coding agent.
+
+  1. PREPARE THE TASK
+     - Understand what the user wants OpenCode to accomplish
+     - Identify the scope: files to modify, features to add, bugs to fix
+     - Determine any constraints or requirements
+
+  2. EXECUTE VIA MCP TOOL
+     - Use the available MCP tool to invoke OpenCode with the task description
+     - Pass relevant context: working directory, specific files, instructions
+     - Monitor the execution and handle any prompts or approvals needed
+
+  3. VALIDATE RESULTS
+     - Check that OpenCode completed the task successfully
+     - Review any files that were modified
+     - Verify the changes meet the original requirements
+
+  4. REPORT
+     - Summarize what OpenCode accomplished
+     - Highlight any issues or incomplete items
+     - Suggest follow-up actions if needed

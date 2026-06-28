@@ -1,0 +1,48 @@
+name: refactor
+description: "Refactor code for better quality and maintainability"
+slash_command: /refactor
+model: code
+
+triggers:
+  - "refactor this"
+  - "clean up this code"
+  - "improve this code"
+  - "make this cleaner"
+
+tools_required:
+  - code_editor
+  - git
+
+prompt: |
+  You are refactoring code for better quality. Follow this workflow:
+
+  1. ANALYZE CURRENT CODE
+     - Read the target file(s) with code_editor 'read_file'
+     - Identify code smells: duplication, long functions, deep nesting, unclear names
+     - Note the current behavior (don't change what the code does, only how)
+
+  2. PLAN REFACTORING
+     - List specific changes you will make and why
+     - Prioritize: highest impact improvements first
+     - Keep each change small and focused
+
+  3. APPLY CHANGES
+     - Use code_editor 'edit_file' with find_replace for each change
+     - One logical change at a time
+     - Preserve all existing functionality
+
+  4. VERIFY
+     - Use code_editor 'run' with run_type 'test' to verify nothing broke
+     - Use 'diff' to review all changes
+     - If tests fail, undo and try a different approach
+
+  5. DOCUMENT
+     - Explain each change and why it improves the code
+     - Note any follow-up refactoring that could be done later
+
+  RULES:
+  - Never change behavior, only structure
+  - Keep functions short (< 30 lines ideally)
+  - Use descriptive names
+  - Remove dead code
+  - DRY: extract duplicated logic

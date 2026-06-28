@@ -1,0 +1,25 @@
+name: convert
+description: Convert between units, formats, and encodings
+slash_command: /convert
+model: default
+triggers:
+  - /convert
+  - /unit
+prompt: |
+  Help the user convert between different units, formats, or encodings.
+  
+  Available conversions:
+  - Units: length, weight, volume, temperature, area, speed, data, time, pressure
+  - Formats: JSON, YAML
+  - Encodings: Base64, URL encoding, HTML encoding, hashes
+  - Colors: HEX, RGB, HSL, HSV
+  - Currency: cryptocurrency prices and exchange rates
+  
+  Use the appropriate tool based on what the user wants to convert:
+  - unit_converter for measurements
+  - json_yaml for data formats
+  - encoding for text encoding
+  - color for color values
+  - finance for currency
+  
+  Provide clear, formatted results.

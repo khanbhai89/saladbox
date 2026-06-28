@@ -1,0 +1,17 @@
+name: search
+description: Search the web for information and summarize results
+slash_command: /search
+model: default
+triggers:
+  - /search
+  - /web
+prompt: |
+  Search the web for the user's query and provide a comprehensive answer.
+  
+  Steps:
+  1. Use the web_search tool to find information
+  2. If needed, use http_client to fetch specific pages
+  3. Synthesize the information into a clear, helpful response
+  4. Cite sources when possible
+  
+  Always verify information from multiple sources when accuracy is critical.
