@@ -6,11 +6,11 @@ import subprocess
 import sys
 
 
-def run_cmd(cmd, cwd=None, capture=False):
+def run_cmd(cmd, cwd=None, capture=False, check=True):
     """Run a shell command and return status/output."""
     print(f"Executing: {cmd}")
     result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=capture, text=True)
-    if result.returncode != 0:
+    if result.returncode != 0 and check:
         print(f"Error executing command: {cmd}")
         if capture:
             print(f"Stdout:\n{result.stdout}\nStderr:\n{result.stderr}")
@@ -85,11 +85,11 @@ def update_version_in_files(new_version):
 def get_changelog():
     """Generate automatic log messages since last tag or prompt user."""
     print("\n--- Generating Changelog ---")
-    try:
-        last_tag = run_cmd("git describe --tags --abbrev=0", capture=True)
+    last_tag = run_cmd("git describe --tags --abbrev=0", capture=True, check=False)
+    if last_tag:
         print(f"Commits since last tag ({last_tag}):")
         log_cmd = f"git log {last_tag}..HEAD --oneline"
-    except Exception:
+    else:
         print("No previous tags found. Commits:")
         log_cmd = "git log --oneline"
 
