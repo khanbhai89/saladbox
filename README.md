@@ -1,6 +1,6 @@
 # Saladbox – AI‑Powered Personal Assistant
 
-![Saladbox Logo](electron/assets/icon.png)
+<img src="electron/assets/icon.png" width="120" alt="Saladbox Logo">
 
 **Saladbox** is a cross‑platform AI‑assistant that lives on your desktop (via Electron) and can be driven through chat platforms such as Telegram, Slack, or a simple CLI.  It combines a powerful LLM engine, a rich toolbox of native tools, and a flexible scheduling system that lets you orchestrate actions (e.g., open a browser at a specific time, send reminders, run background processes).
 
