@@ -11,6 +11,9 @@ from saladbox.tools.docker import DockerTool
 from saladbox.tools.encoding import EncodingTool
 from saladbox.tools.filesystem import FileSystemTool
 from saladbox.tools.file_search import FileSearchTool
+from saladbox.tools.system_control import SystemControlTool
+from saladbox.tools.network import NetworkTool
+from saladbox.tools.local_db import LocalDbTool
 from saladbox.tools.finance import FinanceTool
 from saladbox.tools.git import GitTool
 from saladbox.tools.http_client import HttpClientTool
@@ -42,6 +45,9 @@ TOOL_MAP: dict[str, type[BaseTool]] = {
     "browser": BrowserTool,
     "filesystem": FileSystemTool,
     "file_search": FileSearchTool,
+    "system_control": SystemControlTool,
+    "network": NetworkTool,
+    "local_db": LocalDbTool,
     "system_monitor": SystemMonitorTool,
     "scheduler": SchedulerTool,
     "process_manager": ProcessManagerTool,
